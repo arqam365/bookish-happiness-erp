@@ -563,3 +563,341 @@ Performance prediction
 Dropout risk detection
 Fee default forecasting
 Student engagement scoring
+
+# 22. Settings Module (Core Configuration Layer)
+
+Central control panel for platform-level and institute-level configuration.
+
+Includes:
+
+General Settings
+Plan & Usage
+User Role & Management
+Course Structure
+Class Structure
+Batch Management
+Section Management
+Academic Year Engine
+Master Data Configuration
+Student Profile Master
+Email & SMS Configuration
+
+---
+
+# 22.1 General Settings
+
+Controls institute-level configuration.
+
+Includes:
+
+Institute Name
+Institute Type (School / College / Madrasa / Hybrid)
+Timezone
+Language
+Currency
+Logo Upload
+Address Details
+Contact Information
+
+Optional:
+
+Theme Selection
+Report Header Customization
+Certificate Branding
+
+---
+
+# 22.2 Plan & Usage Module
+
+Supports SaaS subscription enforcement.
+
+Tracks:
+
+Active Users Count
+Student Limit
+Teacher Limit
+Storage Usage
+SMS Credits
+Email Credits
+API Usage
+
+Plan types example:
+
+Starter
+Standard
+Professional
+Enterprise
+
+Controls:
+
+Feature Access
+Institute Limits
+Module Permissions
+Export Limits
+Analytics Access
+
+Example:
+
+Starter Plan:
+
+Attendance
+Students
+Fees
+
+Enterprise Plan:
+
+Attendance
+Fees
+Analytics
+Sponsor Tracking
+Donor Ledger
+Advanced Reports
+Mobile App Access
+
+---
+
+# 22.3 User Role & Management
+
+Implements Role-Based Access Control (RBAC).
+
+Features:
+
+Create Role
+Edit Role
+Assign Permissions
+Assign Users to Roles
+Department-level Access Control
+
+Permission categories:
+
+Student Management
+Attendance
+Fees
+Accounts
+Reports
+Exam Control
+Settings Access
+
+Example:
+
+Teacher Role:
+
+Mark Attendance
+Upload Marks
+View Students
+
+Accountant Role:
+
+Manage Fees
+Generate Receipts
+Access Ledger
+
+Principal Role:
+
+Full Academic Access
+Reports Dashboard
+Staff Monitoring
+
+---
+
+# 22.4 Course Module
+
+Defines educational programs.
+
+Examples:
+
+Science
+Commerce
+Arts
+Alimiyat
+Hifz
+Nazra
+Dars-e-Nizami
+
+Course contains:
+
+Subjects
+Duration
+Evaluation Type
+Credit Structure
+Exam Pattern
+
+Supports:
+
+Multi-course institutes
+Parallel curriculum institutes
+
+---
+
+# 22.5 Class Module
+
+Defines class hierarchy inside courses.
+
+Examples:
+
+Grade 1
+Grade 2
+Year 1
+Year 2
+Hifz Level 1
+Hifz Level 2
+
+Class attributes:
+
+Course Mapping
+Section Count
+Class Teacher Assignment
+Subject Allocation
+
+---
+
+# 22.6 Batch Module
+
+Batch represents session grouping.
+
+Examples:
+
+2024 Batch
+2025 Batch
+Morning Batch
+Evening Batch
+Ramadan Special Batch
+
+Supports:
+
+Parallel teaching groups
+Flexible timetable assignment
+Shift-based institutions
+
+---
+
+# 22.7 Section Module
+
+Defines subdivisions within classes.
+
+Examples:
+
+Class 5A
+Class 5B
+Hifz Section A
+Science Section Red
+
+Supports:
+
+Separate attendance
+Separate exam evaluation
+Separate teacher assignment
+
+---
+
+# 22.8 Academic Year Module
+
+Controls academic session lifecycle.
+
+Examples:
+
+2023–2024
+2024–2025
+
+Features:
+
+Session Activation
+Session Locking
+Promotion Processing
+Historical Data Archiving
+Report Filtering by Session
+
+Supports:
+
+Multi-session reporting
+Student promotion automation
+
+---
+
+# 22.9 Master Data Module
+
+Central reusable configuration repository.
+
+Includes:
+
+Subject Master
+Department Master
+Designation Master
+Religion Categories
+Nationality Categories
+Transport Routes
+Hostel Blocks
+Fee Categories
+
+Purpose:
+
+Avoid duplicate manual entries
+Maintain consistent taxonomy
+
+---
+
+# 22.10 Student Profile Master
+
+Controls student data schema dynamically.
+
+Admin can configure:
+
+Custom Fields
+Mandatory Fields
+Optional Fields
+Dropdown Values
+Document Upload Fields
+
+Example fields:
+
+Passport Number
+Aadhar Number
+Guardian Occupation
+Sponsor Name
+Previous School
+Hifz Status
+Medical Notes
+
+Supports:
+
+Country-specific compliance
+Religious institution requirements
+Government reporting needs
+
+---
+
+# 22.11 Email & SMS Module
+
+Communication infrastructure layer.
+
+Supports:
+
+SMTP Configuration
+SMS Gateway Integration
+Template Management
+Bulk Messaging
+Event-based Notifications
+
+Trigger-based messaging:
+
+Admission Confirmation
+Attendance Alerts
+Fee Due Reminder
+Exam Result Published
+Holiday Announcement
+
+Template example:
+
+"Dear {ParentName}, {StudentName} was absent today."
+
+Supports:
+
+Email Templates
+SMS Templates
+WhatsApp-ready template structure (future-ready)
+
+Credit tracking:
+
+SMS Usage
+Email Usage
+Gateway Status Monitoring
