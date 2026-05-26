@@ -102,7 +102,7 @@ export default function GetStartedPage() {
             <div>
               <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">Organization</p>
               <div className="space-y-4">
-                <Input label="Organization name *" placeholder="Al Noor Educational Trust" error={errors.orgName?.message} {...register('orgName')} />
+                <Input label="Organization name *" placeholder="Organistion Name" error={errors.orgName?.message} {...register('orgName')} />
 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">Type *</label>
@@ -132,10 +132,10 @@ export default function GetStartedPage() {
             <div className="border-t border-gray-100 pt-5">
               <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">Contact person</p>
               <div className="space-y-4">
-                <Input label="Full name *" placeholder="Muhammad Arqam" error={errors.contactName?.message} {...register('contactName')} />
+                <Input label="Full name *" placeholder="Name" error={errors.contactName?.message} {...register('contactName')} />
                 <div className="grid grid-cols-2 gap-3">
                   <Input label="Email *" type="email" placeholder="you@school.com" error={errors.contactEmail?.message} {...register('contactEmail')} />
-                  <Input label="Phone" type="tel" placeholder="+92 300 0000000" {...register('contactPhone')} />
+                  <Input label="Phone" type="tel" placeholder="+91 000 0000000" {...register('contactPhone')} />
                 </div>
               </div>
             </div>
