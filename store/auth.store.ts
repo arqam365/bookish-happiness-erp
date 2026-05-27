@@ -3,7 +3,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { setApiToken, setApiInstituteId, clearApiToken } from '@/lib/api'
-import api from '@/lib/api'
 
 export interface Institute {
   id: string
@@ -67,13 +66,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       switchInstitute: async (instituteId) => {
-        const res = await api.post<{ accessToken: string; permissions: string[]; instituteId: string }>(
-          '/auth/switch-institute',
-          { instituteId },
-        )
-        setApiToken(res.data.accessToken)
         setApiInstituteId(instituteId)
-        set({ activeInstituteId: instituteId, permissions: res.data.permissions, accessToken: res.data.accessToken })
+        set({ activeInstituteId: instituteId })
       },
 
       hasPermission: (permission) => (get().permissions ?? []).includes(permission),

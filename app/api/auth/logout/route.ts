@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  (process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:4000')
 
 export async function POST(req: NextRequest) {
-  const refreshToken = req.cookies.get('refresh_token')?.value
-
-  if (refreshToken) {
-    await fetch(`${API_URL}/auth/logout`, {
+  const authHeader = req.headers.get('authorization')
+  if (authHeader) {
+    await fetch(`${BACKEND_URL}/api/v1/auth/sign-out`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      headers: { Authorization: authHeader },
     }).catch(() => {})
   }
-
-  const response = NextResponse.json({ ok: true })
-  response.cookies.delete('refresh_token')
-  return response
+  return NextResponse.json({ ok: true })
 }

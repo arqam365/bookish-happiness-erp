@@ -7,7 +7,8 @@ import type { LucideIcon } from 'lucide-react'
 import {
   LayoutDashboard, Users, CalendarCheck, CreditCard, BookOpen,
   Landmark, FileBarChart2, CheckSquare, Moon, Settings,
-  LogOut, ChevronLeft, ChevronRight, Building2,
+  LogOut, ChevronLeft, ChevronRight, Building2, UserCheck,
+  BriefcaseBusiness, Download, Trash2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth.store'
@@ -23,6 +24,8 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, permission: null },
   { label: 'Students', href: '/students', icon: Users, permission: 'students:read' },
+  { label: 'Guardians', href: '/guardians', icon: UserCheck, permission: 'students:read' },
+  { label: 'Employees', href: '/employees', icon: BriefcaseBusiness, permission: 'employees:read' },
   { label: 'Attendance', href: '/attendance', icon: CalendarCheck, permission: 'attendance:read' },
   { label: 'Fees', href: '/fees', icon: CreditCard, permission: 'fees:read' },
   { label: 'Examinations', href: '/exams', icon: BookOpen, permission: 'exams:read' },
@@ -34,6 +37,8 @@ const NAV_ITEMS: NavItem[] = [
 const MADRASA_ITEM: NavItem = {
   label: 'Madrasa', href: '/madrasa', icon: Moon, permission: 'madrasa:read',
 }
+const EXPORT_ITEM: NavItem = { label: 'Export', href: '/export', icon: Download, permission: 'reports:read' }
+const DELETE_ITEM: NavItem = { label: 'Delete Data', href: '/delete-data', icon: Trash2, permission: null }
 const SETTINGS_ITEM: NavItem = {
   label: 'Settings', href: '/settings', icon: Settings, permission: null,
 }
@@ -63,6 +68,8 @@ export function Sidebar() {
   const visibleItems = [
     ...NAV_ITEMS.filter((item) => !item.permission || (mounted && hasPermission(item.permission))),
     ...(showMadrasa ? [MADRASA_ITEM] : []),
+    ...(mounted && hasPermission('reports:read') ? [EXPORT_ITEM] : []),
+    DELETE_ITEM,
     SETTINGS_ITEM,
   ]
 

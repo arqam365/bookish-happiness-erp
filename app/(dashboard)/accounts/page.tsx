@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
-import { Plus } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import dayjs from 'dayjs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -249,20 +249,449 @@ function LedgerTab() {
   )
 }
 
+// ─── Collection ───────────────────────────────────────────────────────────────
+interface CollectionRow {
+  mode: string
+  count: number
+  amount: number
+}
+
+function CollectionTab() {
+  const [from, setFrom] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [to, setTo] = useState(dayjs().format('YYYY-MM-DD'))
+
+  const { data = [], isLoading } = useQuery<CollectionRow[]>({
+    queryKey: ['accounts-collection', from, to],
+    queryFn: () => api.get('/accounts/collection', { params: { from, to } }).then((r) => r.data),
+  })
+
+  const totalAmount = data.reduce((s, r) => s + r.amount, 0)
+  const totalCount = data.reduce((s, r) => s + r.count, 0)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">From</label>
+          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">To</label>
+          <input type="date" value={to} onChange={(e) => setTo(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Payment Mode</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Receipts</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {isLoading ? (
+                [...Array(4)].map((_, i) => (
+                  <tr key={i}>{[...Array(3)].map((_, j) => (
+                    <td key={j} className="px-4 py-3"><div className="h-4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></td>
+                  ))}</tr>
+                ))
+              ) : data.length === 0 ? (
+                <tr><td colSpan={3} className="py-12 text-center text-sm text-gray-400">No collections in this period.</td></tr>
+              ) : (
+                data.map((r) => (
+                  <tr key={r.mode} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <td className="px-4 py-3 text-gray-900 dark:text-white">{r.mode}</td>
+                    <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{r.count}</td>
+                    <td className="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">{fmt(r.amount)}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {data.length > 0 && (
+              <tfoot>
+                <tr className="border-t-2 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800">
+                  <td className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Total</td>
+                  <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">{totalCount}</td>
+                  <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">{fmt(totalAmount)}</td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Cash In Hand ─────────────────────────────────────────────────────────────
+interface CashAccount {
+  id: string
+  name: string
+  openingBalance: number
+  receipts: number
+  payments: number
+  closingBalance: number
+}
+
+function CashInHandTab() {
+  const { data = [], isLoading } = useQuery<CashAccount[]>({
+    queryKey: ['accounts-cash-in-hand'],
+    queryFn: () => api.get('/accounts/cash-in-hand').then((r) => r.data),
+  })
+
+  const totalClosing = data.reduce((s, a) => s + a.closingBalance, 0)
+
+  return (
+    <div className="space-y-4">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Cash Account</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Opening</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Receipts</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Payments</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Closing</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {isLoading ? (
+                [...Array(3)].map((_, i) => (
+                  <tr key={i}>{[...Array(5)].map((_, j) => (
+                    <td key={j} className="px-4 py-3"><div className="h-4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></td>
+                  ))}</tr>
+                ))
+              ) : data.length === 0 ? (
+                <tr><td colSpan={5} className="py-12 text-center text-sm text-gray-400">No cash accounts configured.</td></tr>
+              ) : (
+                data.map((a) => (
+                  <tr key={a.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{a.name}</td>
+                    <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{fmt(a.openingBalance)}</td>
+                    <td className="px-4 py-3 text-right text-emerald-600">{fmt(a.receipts)}</td>
+                    <td className="px-4 py-3 text-right text-rose-500">{fmt(a.payments)}</td>
+                    <td className={`px-4 py-3 text-right font-semibold ${a.closingBalance >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                      {fmt(a.closingBalance)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {data.length > 0 && (
+              <tfoot>
+                <tr className="border-t-2 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800">
+                  <td colSpan={4} className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Total Cash In Hand</td>
+                  <td className={`px-4 py-3 text-right text-sm font-bold ${totalClosing >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {fmt(totalClosing)}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Trial Balance ────────────────────────────────────────────────────────────
+interface TrialBalanceRow {
+  code: string
+  name: string
+  debit: number
+  credit: number
+}
+
+function TrialBalanceTab() {
+  const [asOf, setAsOf] = useState(dayjs().format('YYYY-MM-DD'))
+
+  const { data = [], isLoading } = useQuery<TrialBalanceRow[]>({
+    queryKey: ['trial-balance', asOf],
+    queryFn: () => api.get('/accounts/trial-balance', { params: { asOf } }).then((r) => r.data),
+  })
+
+  const totalDebit = data.reduce((s, r) => s + r.debit, 0)
+  const totalCredit = data.reduce((s, r) => s + r.credit, 0)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-end gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">As of date</label>
+          <input type="date" value={asOf} onChange={(e) => setAsOf(e.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Code</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Account</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Debit</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Credit</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {isLoading ? (
+                [...Array(6)].map((_, i) => (
+                  <tr key={i}>{[...Array(4)].map((_, j) => (
+                    <td key={j} className="px-4 py-3"><div className="h-4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></td>
+                  ))}</tr>
+                ))
+              ) : data.length === 0 ? (
+                <tr><td colSpan={4} className="py-12 text-center text-sm text-gray-400">No trial balance data.</td></tr>
+              ) : (
+                data.map((r) => (
+                  <tr key={r.code} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.code}</td>
+                    <td className="px-4 py-3 text-gray-900 dark:text-white">{r.name}</td>
+                    <td className="px-4 py-3 text-right text-gray-900 dark:text-white">{r.debit ? fmt(r.debit) : '—'}</td>
+                    <td className="px-4 py-3 text-right text-gray-900 dark:text-white">{r.credit ? fmt(r.credit) : '—'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {data.length > 0 && (
+              <tfoot>
+                <tr className="border-t-2 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800">
+                  <td colSpan={2} className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Totals</td>
+                  <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">{fmt(totalDebit)}</td>
+                  <td className="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">{fmt(totalCredit)}</td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Receipts ─────────────────────────────────────────────────────────────────
+interface Receipt {
+  id: string
+  receiptNo: string
+  studentName: string
+  admissionNo: string
+  amount: number
+  paymentMode: string
+  feeType: string
+  date: string
+}
+
+function ReceiptsTab() {
+  const [search, setSearch] = useState('')
+  const [from, setFrom] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [to, setTo] = useState(dayjs().format('YYYY-MM-DD'))
+  const [page, setPage] = useState(1)
+
+  const { data, isLoading } = useQuery<{ data: Receipt[]; total: number }>({
+    queryKey: ['accounts-receipts', search, from, to, page],
+    queryFn: () => api.get('/accounts/receipts', { params: { search, from, to, page, pageSize: 20 } }).then((r) => r.data),
+  })
+
+  const rows = data?.data ?? []
+  const total = data?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / 20))
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            placeholder="Search student or receipt no…"
+            className="rounded-lg border border-gray-300 bg-white py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">From</label>
+          <input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }}
+            className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">To</label>
+          <input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }}
+            className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Receipt No</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Student</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Adm. No</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Fee Type</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Mode</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Amount</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {isLoading ? (
+                [...Array(8)].map((_, i) => (
+                  <tr key={i}>{[...Array(7)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></td>)}</tr>
+                ))
+              ) : rows.length === 0 ? (
+                <tr><td colSpan={7} className="py-12 text-center text-sm text-gray-400">No receipts found.</td></tr>
+              ) : (
+                rows.map((r) => (
+                  <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <td className="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400">{r.receiptNo}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{r.studentName}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{r.admissionNo}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{r.feeType}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{r.paymentMode}</td>
+                    <td className="px-4 py-3 text-right font-medium text-emerald-600">{fmt(r.amount)}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(r.date).format('D MMM YY')}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Page {page} of {totalPages} · {total} receipts</p>
+            <div className="flex gap-1">
+              <button onClick={() => setPage((p) => p - 1)} disabled={page <= 1}
+                className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-40 dark:text-gray-400 dark:hover:bg-gray-700">← Prev</button>
+              <button onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages}
+                className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-40 dark:text-gray-400 dark:hover:bg-gray-700">Next →</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Vendors ──────────────────────────────────────────────────────────────────
+interface Vendor { id: string; name: string; phone?: string; email?: string; address?: string; balance: number }
+
+const vendorSchema = z.object({
+  name: z.string().min(1, 'Required'),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  address: z.string().optional(),
+})
+type VendorForm = z.infer<typeof vendorSchema>
+
+function VendorsTab() {
+  const qc = useQueryClient()
+  const [open, setOpen] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const form = useForm<VendorForm>({ resolver: zodResolver(vendorSchema) as any })
+
+  const { data: vendors = [], isLoading } = useQuery<Vendor[]>({
+    queryKey: ['accounts-vendors'],
+    queryFn: () => api.get('/accounts/vendors').then((r) => r.data),
+  })
+
+  const create = useMutation({
+    mutationFn: (d: VendorForm) => api.post('/accounts/vendors', d).then((r) => r.data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts-vendors'] }); setOpen(false); form.reset() },
+  })
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) form.reset() }}>
+          <DialogTrigger asChild>
+            <Button size="sm"><Plus className="h-4 w-4" />Add vendor</Button>
+          </DialogTrigger>
+          <DialogContent title="Add vendor" description="Register a new vendor or supplier.">
+            <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
+              <Input label="Vendor name *" error={form.formState.errors.name?.message} {...form.register('name')} />
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Phone" {...form.register('phone')} />
+                <Input label="Email" type="email" {...form.register('email')} />
+              </div>
+              <Input label="Address" {...form.register('address')} />
+              <div className="flex justify-end gap-2 pt-2">
+                <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
+                <Button type="submit" size="sm" loading={create.isPending}>Save vendor</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Name</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Phone</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Email</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Address</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Balance</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {isLoading ? (
+                [...Array(4)].map((_, i) => (
+                  <tr key={i}>{[...Array(5)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></td>)}</tr>
+                ))
+              ) : vendors.length === 0 ? (
+                <tr><td colSpan={5} className="py-12 text-center text-sm text-gray-400">No vendors added yet.</td></tr>
+              ) : (
+                vendors.map((v) => (
+                  <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{v.name}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{v.phone ?? '—'}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{v.email ?? '—'}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{v.address ?? '—'}</td>
+                    <td className={`px-4 py-3 text-right font-semibold ${v.balance >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                      {fmt(v.balance)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function AccountsPage() {
   return (
     <div>
-      <PageHeader title="Accounts" subtitle="Day book, ledger, and voucher entries." />
+      <PageHeader title="Accounts" subtitle="Day book, ledger, vouchers, and financial reports." />
       <Tabs defaultValue="daybook">
         <TabsList>
           <TabsTrigger value="daybook">Day Book</TabsTrigger>
           <TabsTrigger value="ledger">Ledger</TabsTrigger>
           <TabsTrigger value="voucher">Voucher Entry</TabsTrigger>
+          <TabsTrigger value="receipts">Receipts</TabsTrigger>
+          <TabsTrigger value="collection">Collection</TabsTrigger>
+          <TabsTrigger value="cash">Cash In Hand</TabsTrigger>
+          <TabsTrigger value="trial">Trial Balance</TabsTrigger>
+          <TabsTrigger value="vendors">Vendors</TabsTrigger>
         </TabsList>
         <TabsContent value="daybook"><DayBookTab /></TabsContent>
         <TabsContent value="ledger"><LedgerTab /></TabsContent>
         <TabsContent value="voucher"><VoucherTab /></TabsContent>
+        <TabsContent value="receipts"><ReceiptsTab /></TabsContent>
+        <TabsContent value="collection"><CollectionTab /></TabsContent>
+        <TabsContent value="cash"><CashInHandTab /></TabsContent>
+        <TabsContent value="trial"><TrialBalanceTab /></TabsContent>
+        <TabsContent value="vendors"><VendorsTab /></TabsContent>
       </Tabs>
     </div>
   )

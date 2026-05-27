@@ -10,7 +10,9 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/store/auth.store'
-import api, { setApiToken } from '@/lib/api'
+import api from '@/lib/api'
+import { setApiToken } from '@/lib/api'
+import { authClient } from '@/lib/auth-client'
 import type { Institute } from '@/store/auth.store'
 
 const schema = z.object({
@@ -37,26 +39,39 @@ function LoginForm() {
   async function onSubmit(data: FormData) {
     setServerError('')
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      const { data: signInData, error } = await authClient.signIn.email({
+        email: data.email,
+        password: data.password,
+        fetchOptions: { credentials: 'include' },
       })
-      const json = await res.json()
-      if (!res.ok) {
-        setServerError(json.message ?? 'Invalid credentials')
+
+      if (error || !signInData) {
+        setServerError(error?.message ?? 'Invalid credentials')
         return
       }
-      setAuth({ user: json.user, permissions: json.permissions ?? [], accessToken: json.accessToken })
-      setApiToken(json.accessToken)
 
-      // Fetch accessible institutes and set the active one
-      try {
-        const instRes = await api.get<Institute[]>('/auth/institutes')
-        setInstitutes(instRes.data)
-      } catch {}
+      const token = (signInData as any).token as string
+      if (!token) {
+        setServerError('Authentication failed. Please try again.')
+        return
+      }
 
-      if (json.user?.isSuperAdmin) {
+      setApiToken(token)
+
+      // Load user profile + permissions + institutes
+      const [meRes, instRes] = await Promise.all([
+        api.get<{ id: string; firstName: string; lastName: string; email: string; organizationId: string; isSuperAdmin: boolean; organization: any }>('/auth/me'),
+        api.get<Institute[]>('/auth/institutes'),
+      ])
+
+      setAuth({
+        user: meRes.data,
+        permissions: [],
+        accessToken: token,
+      })
+      setInstitutes(instRes.data)
+
+      if (meRes.data.isSuperAdmin) {
         router.push('/superadmin')
         return
       }

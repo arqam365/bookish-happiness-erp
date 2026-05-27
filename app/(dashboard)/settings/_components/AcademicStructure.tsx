@@ -423,12 +423,143 @@ function Subjects() {
   )
 }
 
+// ─── Courses ──────────────────────────────────────────────────────────────────
+interface Course { id: string; name: string; code?: string; description?: string }
+
+function Courses() {
+  const qc = useQueryClient()
+  const [showForm, setShowForm] = useState(false)
+  const [name, setName] = useState('')
+  const [code, setCode] = useState('')
+  const [description, setDescription] = useState('')
+
+  const { data: courses = [], isLoading } = useQuery<Course[]>({
+    queryKey: ['settings-courses'],
+    queryFn: () => api.get('/settings/courses').then((r) => r.data),
+  })
+
+  const create = useMutation({
+    mutationFn: () => api.post('/settings/courses', { name, code: code || undefined, description: description || undefined }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['settings-courses'] })
+      setShowForm(false); setName(''); setCode(''); setDescription('')
+    },
+  })
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Courses / Programs</CardTitle>
+          <Button size="sm" variant="outline" onClick={() => setShowForm((v) => !v)}>
+            <Plus className="h-3.5 w-3.5" />Add course
+          </Button>
+        </div>
+      </CardHeader>
+
+      {showForm && (
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Course name" placeholder="Science / Alimiyat" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input label="Code (optional)" placeholder="SCI" value={code} onChange={(e) => setCode(e.target.value)} />
+          </div>
+          <Input label="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <div className="flex gap-2">
+            <Button size="sm" loading={create.isPending} disabled={!name} onClick={() => create.mutate()}>Create</Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />)}</div>
+      ) : courses.length === 0 ? (
+        <p className="py-6 text-center text-sm text-gray-400">No courses yet. Add your first program.</p>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {courses.map((c) => (
+            <div key={c.id} className="flex items-center justify-between py-3">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{c.name}{c.code ? <span className="ml-2 text-xs text-gray-400">({c.code})</span> : null}</p>
+                {c.description && <p className="text-xs text-gray-500">{c.description}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  )
+}
+
+// ─── Batches ──────────────────────────────────────────────────────────────────
+interface Batch { id: string; name: string; description?: string }
+
+function Batches() {
+  const qc = useQueryClient()
+  const [showForm, setShowForm] = useState(false)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+
+  const { data: batches = [], isLoading } = useQuery<Batch[]>({
+    queryKey: ['settings-batches'],
+    queryFn: () => api.get('/settings/batches').then((r) => r.data),
+  })
+
+  const create = useMutation({
+    mutationFn: () => api.post('/settings/batches', { name, description: description || undefined }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['settings-batches'] })
+      setShowForm(false); setName(''); setDescription('')
+    },
+  })
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Batches</CardTitle>
+          <Button size="sm" variant="outline" onClick={() => setShowForm((v) => !v)}>
+            <Plus className="h-3.5 w-3.5" />Add batch
+          </Button>
+        </div>
+      </CardHeader>
+
+      {showForm && (
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 space-y-3">
+          <Input label="Batch name" placeholder="2024 Batch / Morning Batch" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input label="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <div className="flex gap-2">
+            <Button size="sm" loading={create.isPending} disabled={!name} onClick={() => create.mutate()}>Create</Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex flex-wrap gap-2">{[...Array(4)].map((_, i) => <div key={i} className="h-7 w-24 animate-pulse rounded-full bg-gray-100" />)}</div>
+      ) : batches.length === 0 ? (
+        <p className="py-6 text-center text-sm text-gray-400">No batches yet.</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {batches.map((b) => (
+            <span key={b.id} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700" title={b.description ?? ''}>
+              {b.name}
+            </span>
+          ))}
+        </div>
+      )}
+    </Card>
+  )
+}
+
 export function AcademicStructure() {
   return (
     <div className="space-y-6">
       <AcademicYears />
       <ClassesAndSections />
       <Subjects />
+      <Courses />
+      <Batches />
     </div>
   )
 }

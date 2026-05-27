@@ -1,21 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_PATHS = ['/', '/login', '/register', '/get-started', '/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/onboarding-request']
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/register',
+  '/get-started',
+  '/api/',
+]
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
-  const hasSession = request.cookies.has('refresh_token')
+  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p))
+  if (isPublic) return NextResponse.next()
 
-  if (!isPublic && !hasSession) {
+  // Better Auth session cookie (http on dev, __Secure- prefix on https/prod)
+  const sessionToken =
+    request.cookies.get('better-auth.session_token')?.value ??
+    request.cookies.get('__Secure-better-auth.session_token')?.value
+
+  if (!sessionToken) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  if (hasSession && (pathname === '/login' || pathname === '/register')) {
+  // Redirect authenticated users away from auth pages
+  if (pathname === '/login' || pathname === '/register') {
     const homeUrl = request.nextUrl.clone()
     homeUrl.pathname = '/dashboard'
     homeUrl.searchParams.delete('next')
