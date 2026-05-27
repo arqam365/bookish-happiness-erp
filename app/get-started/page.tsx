@@ -58,13 +58,13 @@ export default function GetStartedPage() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] px-4">
         <div className="w-full max-w-md text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-            <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Request received!</h1>
-          <p className="mt-3 text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Request received!</h1>
+          <p className="mt-3 text-gray-500 dark:text-gray-400">
             Thanks for your interest. The Revzion team will review your request and get in touch within 24 hours.
           </p>
           <Link href="/" className="mt-6 inline-flex items-center gap-1.5 text-sm text-[#4F46E5] hover:underline">
@@ -76,7 +76,7 @@ export default function GetStartedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] px-4 py-16">
       <div className="mx-auto max-w-lg">
         {/* Logo */}
         <div className="mb-8 flex items-center gap-2">
@@ -84,33 +84,33 @@ export default function GetStartedPage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#4F46E5]">
               <GraduationCap className="h-3.5 w-3.5 text-white" />
             </div>
-            <span className="text-sm font-semibold text-gray-900">Cognivia <span className="font-normal text-gray-400">ERP</span></span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Cognivia <span className="font-normal text-gray-400">ERP</span></span>
           </Link>
         </div>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Request onboarding</h1>
-          <p className="mt-1.5 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Request onboarding</h1>
+          <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
             Fill in your details and the Revzion team will set up your organization within 24 hours.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-white/5 dark:bg-[#111118]">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
             {/* Org info */}
             <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">Organization</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">Organization</p>
               <div className="space-y-4">
                 <Input label="Organization name *" placeholder="Organistion Name" error={errors.orgName?.message} {...register('orgName')} />
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Type *</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200">Type *</label>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {ORG_TYPES.map(t => (
-                      <label key={t.value} className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-colors ${watch('orgType') === t.value ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]' : 'border-gray-200 text-gray-700 hover:border-gray-300'}`}>
+                      <label key={t.value} className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-colors ${watch('orgType') === t.value ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5] dark:bg-indigo-900/20 dark:text-indigo-400' : 'border-gray-200 text-gray-700 hover:border-gray-300 dark:border-white/10 dark:text-gray-400 dark:hover:border-white/20'}`}>
                         <input type="radio" value={t.value} {...register('orgType')} className="sr-only" />
-                        <span className={`h-3.5 w-3.5 shrink-0 rounded-full border-2 ${watch('orgType') === t.value ? 'border-[#4F46E5] bg-[#4F46E5]' : 'border-gray-300'}`} />
+                        <span className={`h-3.5 w-3.5 shrink-0 rounded-full border-2 ${watch('orgType') === t.value ? 'border-[#4F46E5] bg-[#4F46E5]' : 'border-gray-300 dark:border-gray-600'}`} />
                         {t.label}
                       </label>
                     ))}
@@ -129,8 +129,8 @@ export default function GetStartedPage() {
             </div>
 
             {/* Contact info */}
-            <div className="border-t border-gray-100 pt-5">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">Contact person</p>
+            <div className="border-t border-gray-100 dark:border-white/5 pt-5">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">Contact person</p>
               <div className="space-y-4">
                 <Input label="Full name *" placeholder="Name" error={errors.contactName?.message} {...register('contactName')} />
                 <div className="grid grid-cols-2 gap-3">
@@ -141,12 +141,12 @@ export default function GetStartedPage() {
             </div>
 
             {/* Message */}
-            <div className="border-t border-gray-100 pt-5">
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">Message <span className="text-gray-400">(optional)</span></label>
+            <div className="border-t border-gray-100 dark:border-white/5 pt-5">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-200">Message <span className="text-gray-400 dark:text-gray-500">(optional)</span></label>
               <textarea
                 rows={3}
                 placeholder="Any specific requirements, modules you need, or questions for us…"
-                className="w-full resize-none rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                className="w-full resize-none rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
                 {...register('message')}
               />
             </div>

@@ -14,10 +14,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
       primary: 'bg-[#4F46E5] text-white hover:bg-[#4338CA] focus:ring-[#4F46E5]',
-      secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-300',
+      secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700',
       danger: 'bg-[#F43F5E] text-white hover:bg-rose-600 focus:ring-[#F43F5E]',
-      ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-300',
-      outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-[#4F46E5]',
+      ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-300 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100',
+      outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-[#4F46E5] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800',
     }
 
     const sizes: Record<NonNullable<ButtonProps['size']>, string> = {

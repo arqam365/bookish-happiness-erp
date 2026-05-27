@@ -84,14 +84,14 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#4F46E5]">
             <span className="text-lg font-bold text-white">C</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Sign in to Cognivia</h1>
-          <p className="mt-1.5 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sign in to Cognivia</h1>
+          <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-[#4F46E5] font-medium hover:underline">
               Register
@@ -99,7 +99,7 @@ function LoginForm() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm dark:border-white/5 dark:bg-[#111118]">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <Input
               label="Email address"
@@ -111,13 +111,13 @@ function LoginForm() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Password</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 pr-10 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
                   {...register('password')}
                 />
                 <button
