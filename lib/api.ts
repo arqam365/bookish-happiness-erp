@@ -1,14 +1,29 @@
 import axios from 'axios'
 
+const baseURL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1'
+
+if (typeof window !== 'undefined') {
+  console.log('[api] baseURL:', baseURL)
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1',
+  baseURL,
   withCredentials: true,
   timeout: 30_000,
 })
 
+api.interceptors.request.use((config) => {
+  console.log('[api] →', config.method?.toUpperCase(), config.baseURL + config.url)
+  return config
+})
+
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    console.log('[api] ←', res.status, res.config.url)
+    return res
+  },
   (error) => {
+    console.error('[api] error', error.response?.status, error.config?.url, error.response?.data)
     if (error.response?.status === 401) {
       clearApiToken()
       if (typeof window !== 'undefined') window.location.href = '/login'

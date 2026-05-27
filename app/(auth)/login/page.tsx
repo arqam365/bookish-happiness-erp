@@ -38,31 +38,42 @@ function LoginForm() {
 
   async function onSubmit(data: FormData) {
     setServerError('')
+    console.log('[login] submitting', { email: data.email })
+    console.log('[login] backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL ?? '(not set, using fallback)')
+    console.log('[login] api URL:', process.env.NEXT_PUBLIC_API_URL ?? '(not set, using fallback)')
+
     try {
+      console.log('[login] calling authClient.signIn.email...')
       const { data: signInData, error } = await authClient.signIn.email({
         email: data.email,
         password: data.password,
         fetchOptions: { credentials: 'include' },
       })
+      console.log('[login] signIn result:', { signInData, error })
 
       if (error || !signInData) {
-        setServerError(error?.message ?? 'Invalid credentials')
+        const msg = error?.message ?? 'Invalid credentials'
+        console.error('[login] signIn error:', error)
+        setServerError(msg)
         return
       }
 
       const token = (signInData as any).token as string
+      console.log('[login] token present:', !!token, '| keys:', Object.keys(signInData as any))
       if (!token) {
-        setServerError('Authentication failed. Please try again.')
+        setServerError('Authentication failed — no token returned.')
         return
       }
 
       setApiToken(token)
 
-      // Load user profile + permissions + institutes
+      console.log('[login] fetching /auth/me and /auth/institutes...')
       const [meRes, instRes] = await Promise.all([
         api.get<{ id: string; firstName: string; lastName: string; email: string; organizationId: string; isSuperAdmin: boolean; organization: any }>('/auth/me'),
         api.get<Institute[]>('/auth/institutes'),
       ])
+      console.log('[login] /auth/me:', meRes.data)
+      console.log('[login] /auth/institutes:', instRes.data)
 
       setAuth({
         user: meRes.data,
@@ -78,8 +89,10 @@ function LoginForm() {
       const raw = searchParams.get('next') ?? '/dashboard'
       const next = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard'
       router.push(next)
-    } catch {
-      setServerError('Network error. Please try again.')
+    } catch (err: any) {
+      console.error('[login] caught error:', err)
+      console.error('[login] error detail:', err?.response?.data ?? err?.message ?? err)
+      setServerError(err?.response?.data?.message ?? err?.message ?? 'Network error. Please try again.')
     }
   }
 
