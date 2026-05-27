@@ -72,15 +72,16 @@ function LoginForm() {
 
       console.log('[login] fetching /auth/me and /auth/institutes...')
       const [meRes, instRes] = await Promise.all([
-        api.get<{ id: string; firstName: string; lastName: string; email: string; organizationId: string; isSuperAdmin: boolean; organization: any }>('/auth/me'),
+        api.get<{ id: string; firstName: string; lastName: string; email: string; organizationId: string; isSuperAdmin: boolean; organization: any; permissions: string[] }>('/auth/me'),
         api.get<Institute[]>('/auth/institutes'),
       ])
       console.log('[login] /auth/me:', meRes.data)
       console.log('[login] /auth/institutes:', instRes.data)
+      console.log('[login] permissions:', meRes.data.permissions)
 
       setAuth({
         user: meRes.data,
-        permissions: [],
+        permissions: meRes.data.permissions ?? [],
         accessToken: token,
       })
       setInstitutes(instRes.data)
