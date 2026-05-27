@@ -11,6 +11,7 @@ import {
   ArrowRight,
   ArrowUpRight,
 } from 'lucide-react'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const FEATURES = [
   { icon: GraduationCap, title: 'Students',       desc: 'Admissions, profiles, enrollment history, guardian linking.' },
@@ -54,6 +55,7 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
               Sign in
             </Link>
+            <ThemeToggle />
             <Link
               href="/get-started"
               className="inline-flex items-center gap-1 rounded-md bg-gray-900 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 transition-colors"
