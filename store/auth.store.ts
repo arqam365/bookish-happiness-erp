@@ -62,8 +62,8 @@ export const useAuthStore = create<AuthState>()(
 
       clearAuth: () => {
         clearApiToken()
-        if (typeof document !== 'undefined') {
-          document.cookie = 'app_session=; path=/; max-age=0; SameSite=Lax; Secure'
+        if (typeof window !== 'undefined') {
+          fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {})
         }
         set({ user: null, permissions: [], institutes: [], activeInstituteId: null, accessToken: null })
       },
