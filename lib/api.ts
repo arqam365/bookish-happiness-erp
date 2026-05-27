@@ -13,7 +13,7 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  console.log('[api] →', config.method?.toUpperCase(), config.baseURL + config.url)
+  console.log('[api] →', config.method?.toUpperCase(), (config.baseURL ?? '') + (config.url ?? ''))
   return config
 })
 
