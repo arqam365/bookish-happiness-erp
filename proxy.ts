@@ -15,9 +15,11 @@ export function proxy(request: NextRequest) {
   if (isPublic) return NextResponse.next()
 
   // Better Auth session cookie (http on dev, __Secure- prefix on https/prod)
+  // Falls back to app_session — a first-party cookie we set after cross-origin auth
   const sessionToken =
     request.cookies.get('better-auth.session_token')?.value ??
-    request.cookies.get('__Secure-better-auth.session_token')?.value
+    request.cookies.get('__Secure-better-auth.session_token')?.value ??
+    request.cookies.get('app_session')?.value
 
   if (!sessionToken) {
     const loginUrl = request.nextUrl.clone()

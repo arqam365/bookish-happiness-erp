@@ -66,6 +66,9 @@ function LoginForm() {
       }
 
       setApiToken(token)
+      // Set a first-party cookie so proxy.ts can gate protected routes
+      // (Better Auth's own session cookie is cross-origin and inaccessible here)
+      document.cookie = `app_session=${token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax; Secure`
 
       console.log('[login] fetching /auth/me and /auth/institutes...')
       const [meRes, instRes] = await Promise.all([
