@@ -61,9 +61,17 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearAuth: () => {
+        const token = get().accessToken
         clearApiToken()
         if (typeof window !== 'undefined') {
+          // Delete the app_session cookie and invalidate the server-side Better Auth session.
           fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {})
+          if (token) {
+            fetch('/api/auth/logout', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+            }).catch(() => {})
+          }
         }
         set({ user: null, permissions: [], institutes: [], activeInstituteId: null, accessToken: null })
       },

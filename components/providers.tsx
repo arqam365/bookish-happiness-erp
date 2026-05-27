@@ -11,20 +11,24 @@ function AuthHydrator({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user)
   const isHydrated = useAuthStore((s) => s.isHydrated)
   const clearAuth = useAuthStore((s) => s.clearAuth)
+  const accessToken = useAuthStore((s) => s.accessToken)
   const refreshed = useRef(false)
 
   useEffect(() => {
     if (!isHydrated || !user || refreshed.current) return
     refreshed.current = true
 
-    fetch('/api/auth/refresh', { method: 'POST' })
+    fetch('/api/auth/refresh', {
+      method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.accessToken) setApiToken(data.accessToken)
         else clearAuth()
       })
       .catch(() => clearAuth())
-  }, [isHydrated, user, clearAuth])
+  }, [isHydrated, user, clearAuth, accessToken])
 
   return <>{children}</>
 }
