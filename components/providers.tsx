@@ -36,7 +36,7 @@ function AuthHydrator({ children }: { children: React.ReactNode }) {
 export function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient()
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <QueryClientProvider client={queryClient}>
         <AuthHydrator>{children}</AuthHydrator>
       </QueryClientProvider>

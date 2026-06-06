@@ -1,9 +1,10 @@
 'use client'
 
-import { Bell, Menu, Sun, Moon } from 'lucide-react'
+import { Bell, Menu } from 'lucide-react'
+import { Classic } from '@/components/ui/classic'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useUIStore } from '@/store/ui.store'
 import { useAuthStore } from '@/store/auth.store'
 import { useNotificationSocket } from '@/hooks/useSocket'
@@ -95,7 +96,27 @@ export function Topbar() {
   const user = useAuthStore((s) => s.user)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const themeBtnRef = useRef<HTMLButtonElement>(null)
   useEffect(() => setMounted(true), [])
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    if (themeBtnRef.current) {
+      const rect = themeBtnRef.current.getBoundingClientRect()
+      document.documentElement.style.setProperty('--theme-x', `${rect.left + rect.width / 2}px`)
+      document.documentElement.style.setProperty('--theme-y', `${rect.top + rect.height / 2}px`)
+    }
+    if (!document.startViewTransition) {
+      setTheme(next)
+      return
+    }
+    document.startViewTransition(() => {
+      // next-themes applies the class in a useEffect (async), so we toggle it
+      // synchronously here so the transition snapshot captures the new theme.
+      document.documentElement.classList.toggle('dark', next === 'dark')
+      setTheme(next)
+    })
+  }
 
   return (
     <header className="flex h-16 shrink-0 items-center border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 px-6 gap-4">
@@ -113,13 +134,11 @@ export function Topbar() {
 
       <div className="flex items-center gap-2">
         {mounted && (
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
+          <Classic
+            ref={themeBtnRef}
+            onClick={toggleTheme}
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 text-xl"
+          />
         )}
 
         {mounted && <NotificationBell />}
