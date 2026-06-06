@@ -63,6 +63,39 @@ body {
   50%       { transform: translateY(28px) scale(0.97); }
 }
 
+/* ─── 404 Glitch animations ─────────────────────────────────── */
+@keyframes glitch-1 {
+  0%,  79%, 100% { clip-path: inset(0 0 100% 0); transform: translateX(0); }
+  80%  { clip-path: inset(8%  0 56% 0); transform: translateX(-7px); }
+  82%  { clip-path: inset(60% 0 14% 0); transform: translateX(7px);  }
+  84%  { clip-path: inset(28% 0 44% 0); transform: translateX(-4px); }
+  86%  { clip-path: inset(74% 0 4%  0); transform: translateX(5px);  }
+  88%  { clip-path: inset(0 0 100% 0);  transform: translateX(0);    }
+}
+@keyframes glitch-2 {
+  0%,  74%, 100% { clip-path: inset(0 0 100% 0); transform: translateX(0); }
+  75%  { clip-path: inset(44% 0 24% 0); transform: translateX(8px);  }
+  77%  { clip-path: inset(10% 0 64% 0); transform: translateX(-8px); }
+  79%  { clip-path: inset(56% 0 20% 0); transform: translateX(4px);  }
+  81%  { clip-path: inset(2%  0 82% 0); transform: translateX(-5px); }
+  83%  { clip-path: inset(0 0 100% 0);  transform: translateX(0);    }
+}
+
+.glitch-layer-1 {
+  animation: glitch-1 9s infinite linear;
+  color: rgba(34, 211, 238, 0.60);
+}
+.dark .glitch-layer-1 {
+  color: rgba(34, 211, 238, 0.85);
+}
+.glitch-layer-2 {
+  animation: glitch-2 9s infinite linear;
+  color: rgba(251, 113, 133, 0.60);
+}
+.dark .glitch-layer-2 {
+  color: rgba(251, 113, 133, 0.85);
+}
+
 /* ─── Theme reveal transition ───────────────────────────────── */
 @keyframes theme-reveal {
   from { clip-path: circle(0% at var(--theme-x) var(--theme-y)); }
