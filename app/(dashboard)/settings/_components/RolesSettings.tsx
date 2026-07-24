@@ -107,7 +107,7 @@ export function RolesSettings() {
 
         {showForm && (
           <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 p-5">
-            <h4 className="mb-4 text-sm font-semibold text-gray-900">Create new role</h4>
+            <h4 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Create new role</h4>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 mb-4">
               <Input
                 label="Role name"
@@ -188,7 +188,7 @@ export function RolesSettings() {
         ) : roles.length === 0 ? (
           <p className="py-6 text-center text-sm text-gray-400">No roles defined.</p>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {roles.map((role) => {
               const isExpanded = expandedRole === role.id
               const perms = role.rolePermissions.map((rp) => rp.permission)
@@ -206,7 +206,7 @@ export function RolesSettings() {
                       )}
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">{role.name}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">{role.name}</span>
                           {role.isSystem && <Badge variant="info">System</Badge>}
                         </div>
                         {role.description && (
@@ -225,7 +225,7 @@ export function RolesSettings() {
                         {perms.map((p) => (
                           <span
                             key={p.id}
-                            className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-600"
+                            className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                           >
                             {p.module}:{p.action}
                           </span>

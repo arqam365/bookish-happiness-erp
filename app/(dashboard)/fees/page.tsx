@@ -431,7 +431,7 @@ function FeeStructuresTab() {
             </DialogTrigger>
             <DialogContent title="New fee category" description="Categories group fee types (e.g. Tuition, Hostel, Transport).">
               <div className="space-y-4">
-                <Input label="Category name *" placeholder="e.g. Tuition Fee" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} />
+                <Input label="Category name *" placeholder="e.g. Tuition, Contribution, Hostel…" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} />
                 <div className="flex justify-end gap-2 pt-2">
                   <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
                   <Button size="sm" loading={createCat.isPending} disabled={!newCatName} onClick={() => createCat.mutate()}>Save</Button>
@@ -447,7 +447,7 @@ function FeeStructuresTab() {
             </DialogTrigger>
             <DialogContent title="New fee structure" description="Define a specific fee amount for a category and academic year.">
               <form onSubmit={structForm.handleSubmit((d) => createStruct.mutate(d))} className="space-y-4">
-                <Input label="Name *" placeholder="e.g. Monthly Tuition Fee" error={structForm.formState.errors.name?.message} {...structForm.register('name')} />
+                <Input label="Name / Label *" placeholder="e.g. Monthly Fee, Contribution, Donation…" error={structForm.formState.errors.name?.message} {...structForm.register('name')} />
                 <div className="grid grid-cols-2 gap-3">
                   <Select label="Category *" value={structForm.watch('feeCategoryId') ?? ''} onValueChange={(v) => structForm.setValue('feeCategoryId', v)} placeholder="Select" error={structForm.formState.errors.feeCategoryId?.message}>
                     {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}

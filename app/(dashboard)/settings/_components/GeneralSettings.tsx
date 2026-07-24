@@ -139,9 +139,9 @@ export function GeneralSettings() {
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Timezone</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Timezone</label>
                 <select
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   {...settingsForm.register('timezone')}
                 >
                   <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
@@ -153,9 +153,9 @@ export function GeneralSettings() {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Language</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Language</label>
                 <select
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   {...settingsForm.register('language')}
                 >
                   <option value="en">English</option>
@@ -164,9 +164,9 @@ export function GeneralSettings() {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Currency</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Currency</label>
                 <select
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   {...settingsForm.register('currency')}
                 >
                   <option value="INR">INR — Indian Rupee</option>
@@ -177,9 +177,9 @@ export function GeneralSettings() {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">Date format</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Date format</label>
                 <select
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   {...settingsForm.register('dateFormat')}
                 >
                   <option value="DD/MM/YYYY">DD/MM/YYYY</option>
