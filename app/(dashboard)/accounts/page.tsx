@@ -119,10 +119,12 @@ const voucherSchema = z.object({
 type VoucherForm = z.infer<typeof voucherSchema>
 
 interface Account { id: string; name: string; code: string }
+interface VoucherRow { id: string; voucherNo: string; type: string; amount: number; description: string; date: string }
 
 function VoucherTab() {
   const qc = useQueryClient()
   const [open, setOpen] = useState(false)
+  const [page, setPage] = useState(1)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<VoucherForm>({ resolver: zodResolver(voucherSchema) as any })
 
@@ -132,9 +134,21 @@ function VoucherTab() {
     enabled: open,
   })
 
+  const { data: voucherRes, isLoading: vouchersLoading } = useQuery<{ data: VoucherRow[]; total: number; totalPages: number }>({
+    queryKey: ['accounts-vouchers', page],
+    queryFn: () => api.get('/accounts/vouchers', { params: { page, limit: 20 } }).then((r) => r.data),
+  })
+  const vouchers = voucherRes?.data ?? []
+  const totalPages = voucherRes?.totalPages ?? 1
+
   const create = useMutation({
     mutationFn: (data: VoucherForm) => api.post('/accounts/vouchers', data).then((r) => r.data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['day-book'] }); setOpen(false); form.reset() },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['day-book'] })
+      qc.invalidateQueries({ queryKey: ['accounts-vouchers'] })
+      setOpen(false)
+      form.reset()
+    },
   })
 
   return (
@@ -148,12 +162,12 @@ function VoucherTab() {
             <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <Input label="Date *" type="date" error={form.formState.errors.date?.message} {...form.register('date')} />
-                <Select label="Type *" value={form.watch('type')} onValueChange={(v) => form.setValue('type', v as 'DEBIT' | 'CREDIT')} placeholder="Select">
+                <Select label="Type *" value={form.watch('type') ?? ''} onValueChange={(v) => form.setValue('type', v as 'DEBIT' | 'CREDIT')} placeholder="Select">
                   <SelectItem value="DEBIT">Debit</SelectItem>
                   <SelectItem value="CREDIT">Credit</SelectItem>
                 </Select>
               </div>
-              <Select label="Account *" value={form.watch('accountId')} onValueChange={(v) => form.setValue('accountId', v)} placeholder="Select account" error={form.formState.errors.accountId?.message}>
+              <Select label="Account *" value={form.watch('accountId') ?? ''} onValueChange={(v) => form.setValue('accountId', v)} placeholder="Select account" error={form.formState.errors.accountId?.message}>
                 {accounts.length === 0
                   ? <SelectItem value="__none__">No accounts configured</SelectItem>
                   : accounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)
@@ -171,8 +185,54 @@ function VoucherTab() {
         </Dialog>
       </div>
 
-      <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-        <p className="text-sm text-gray-400">Voucher history will appear here.</p>
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Voucher No</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Date</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Type</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-gray-500">Description</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {vouchersLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i}>{[...Array(5)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></td>)}</tr>
+                ))
+              ) : vouchers.length === 0 ? (
+                <tr><td colSpan={5} className="py-12 text-center text-sm text-gray-400">No vouchers posted yet.</td></tr>
+              ) : (
+                vouchers.map((v) => (
+                  <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                    <td className="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400">{v.voucherNo}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(v.date).format('D MMM YY')}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${v.type === 'JOURNAL' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                        {v.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{v.description}</td>
+                    <td className="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">{fmt(v.amount)}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Page {page} of {totalPages}</p>
+            <div className="flex gap-1">
+              <button onClick={() => setPage((p) => p - 1)} disabled={page <= 1}
+                className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-40 dark:text-gray-400 dark:hover:bg-gray-700">← Prev</button>
+              <button onClick={() => setPage((p) => p + 1)} disabled={page >= totalPages}
+                className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-40 dark:text-gray-400 dark:hover:bg-gray-700">Next →</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
