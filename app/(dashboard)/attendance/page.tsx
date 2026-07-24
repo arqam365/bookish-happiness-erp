@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { CheckCircle2, XCircle, Clock3, FileCheck2 } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Select, SelectItem } from '@/components/ui/select'
@@ -12,7 +13,33 @@ import api from '@/lib/api'
 
 type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED'
 
-const STATUS_CYCLE: AttendanceStatus[] = ['PRESENT', 'ABSENT', 'LATE', 'EXCUSED']
+const STATUS_CONFIG: Record<AttendanceStatus, { label: string; icon: React.ReactNode; active: string; inactive: string }> = {
+  PRESENT: {
+    label: 'Present',
+    icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+    active: 'bg-emerald-500 text-white border-emerald-500 shadow-sm',
+    inactive: 'bg-white text-gray-400 border-gray-200 hover:border-emerald-400 hover:text-emerald-500 dark:bg-gray-900 dark:border-gray-700 dark:hover:border-emerald-500',
+  },
+  ABSENT: {
+    label: 'Absent',
+    icon: <XCircle className="h-3.5 w-3.5" />,
+    active: 'bg-rose-500 text-white border-rose-500 shadow-sm',
+    inactive: 'bg-white text-gray-400 border-gray-200 hover:border-rose-400 hover:text-rose-500 dark:bg-gray-900 dark:border-gray-700 dark:hover:border-rose-500',
+  },
+  LATE: {
+    label: 'Late',
+    icon: <Clock3 className="h-3.5 w-3.5" />,
+    active: 'bg-amber-400 text-white border-amber-400 shadow-sm',
+    inactive: 'bg-white text-gray-400 border-gray-200 hover:border-amber-400 hover:text-amber-500 dark:bg-gray-900 dark:border-gray-700 dark:hover:border-amber-400',
+  },
+  EXCUSED: {
+    label: 'Excused',
+    icon: <FileCheck2 className="h-3.5 w-3.5" />,
+    active: 'bg-indigo-400 text-white border-indigo-400 shadow-sm',
+    inactive: 'bg-white text-gray-400 border-gray-200 hover:border-indigo-400 hover:text-indigo-500 dark:bg-gray-900 dark:border-gray-700 dark:hover:border-indigo-400',
+  },
+}
+
 const STATUS_STYLES: Record<AttendanceStatus, string> = {
   PRESENT: 'bg-emerald-500 text-white',
   ABSENT: 'bg-rose-500 text-white',
@@ -87,13 +114,6 @@ export default function AttendancePage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance-section', sectionId, selectedDate] }),
   })
 
-  function toggle(studentId: string) {
-    setMarkMap((prev) => {
-      const cur = prev[studentId] ?? 'PRESENT'
-      const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(cur) + 1) % STATUS_CYCLE.length]
-      return { ...prev, [studentId]: next }
-    })
-  }
 
   function setAll(status: AttendanceStatus) {
     const map: Record<string, AttendanceStatus> = {}
@@ -171,20 +191,36 @@ export default function AttendancePage() {
                 <p className="py-12 text-center text-sm text-gray-400">No students in this section.</p>
               ) : (
                 <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {students.map((s) => {
+                  {students.map((s, idx) => {
                     const status = markMap[s.id] ?? 'PRESENT'
                     return (
-                      <div key={s.id} className="flex items-center justify-between px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{s.firstName} {s.lastName}</p>
-                          <p className="text-xs text-gray-400">{s.admissionNo}</p>
+                      <div key={s.id} className="flex items-center justify-between px-4 py-3 gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                            {idx + 1}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{s.firstName} {s.lastName}</p>
+                            <p className="text-xs text-gray-400">{s.admissionNo}</p>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => toggle(s.id)}
-                          className={`rounded-full px-4 py-1 text-xs font-semibold transition-colors ${STATUS_STYLES[status]}`}
-                        >
-                          {status}
-                        </button>
+                        <div className="flex shrink-0 gap-1.5">
+                          {(Object.keys(STATUS_CONFIG) as AttendanceStatus[]).map((st) => {
+                            const cfg = STATUS_CONFIG[st]
+                            const isActive = status === st
+                            return (
+                              <button
+                                key={st}
+                                onClick={() => setMarkMap((prev) => ({ ...prev, [s.id]: st }))}
+                                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${isActive ? cfg.active : cfg.inactive}`}
+                                title={cfg.label}
+                              >
+                                {cfg.icon}
+                                <span className="hidden sm:inline">{cfg.label}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     )
                   })}
