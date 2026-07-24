@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { CheckCircle2, XCircle, Clock3, FileCheck2 } from 'lucide-react'
+import { CheckCircle2, XCircle, Clock3, FileCheck2, TrendingUp } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Select, SelectItem } from '@/components/ui/select'
@@ -54,6 +54,10 @@ interface MonthlyRow {
   student: { id: string; firstName: string; lastName: string; admissionNo: string }
   days: Record<string, AttendanceStatus>
 }
+interface PercentRow {
+  student: { id: string; firstName: string; lastName: string; admissionNo: string }
+  total: number; present: number; absent: number; late: number; excused: number; percentage: number
+}
 
 export default function AttendancePage() {
   const today = dayjs().format('YYYY-MM-DD')
@@ -63,6 +67,8 @@ export default function AttendancePage() {
   const [markMap, setMarkMap] = useState<Record<string, AttendanceStatus>>({})
   const [reportMonth, setReportMonth] = useState(dayjs().month() + 1)
   const [reportYear, setReportYear] = useState(dayjs().year())
+  const [pctFrom, setPctFrom] = useState(dayjs().startOf('month').format('YYYY-MM-DD'))
+  const [pctTo, setPctTo] = useState(today)
   const qc = useQueryClient()
 
   const handleAttendanceUpdate = useCallback((data: { date: string; sectionId: string }) => {
@@ -96,6 +102,13 @@ export default function AttendancePage() {
     existingAttendance.forEach((r) => { map[r.studentId] = r.status })
     if (Object.keys(map).length > 0) setMarkMap(map)
   }, [existingAttendance])
+
+  const { data: percentReport = [], isLoading: pctLoading } = useQuery<PercentRow[]>({
+    queryKey: ['attendance-percent', sectionId, pctFrom, pctTo],
+    queryFn: () =>
+      api.get('/attendance/report', { params: { sectionId, from: pctFrom, to: pctTo } }).then((r) => r.data),
+    enabled: !!sectionId,
+  })
 
   const { data: monthlyReport = [], isLoading: reportLoading } = useQuery<MonthlyRow[]>({
     queryKey: ['attendance-monthly', sectionId, reportMonth, reportYear],
@@ -152,6 +165,7 @@ export default function AttendancePage() {
           <TabsList>
             <TabsTrigger value="mark">Mark Attendance</TabsTrigger>
             <TabsTrigger value="report">Monthly Report</TabsTrigger>
+            <TabsTrigger value="percent"><TrendingUp className="mr-1 h-3.5 w-3.5" />% Report</TabsTrigger>
           </TabsList>
 
           <TabsContent value="mark">
@@ -296,6 +310,67 @@ export default function AttendancePage() {
                         </tr>
                       )
                     })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="percent">
+            <div className="mb-4 flex flex-wrap items-end gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">From</label>
+                <input type="date" value={pctFrom} max={today} onChange={(e) => setPctFrom(e.target.value)}
+                  className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">To</label>
+                <input type="date" value={pctTo} max={today} onChange={(e) => setPctTo(e.target.value)}
+                  className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white" />
+              </div>
+            </div>
+
+            {pctLoading ? (
+              <div className="h-48 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />
+            ) : percentReport.length === 0 ? (
+              <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+                <p className="text-sm text-gray-400">No attendance records for this period.</p>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Student</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-emerald-600">P</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-rose-500">A</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-amber-500">L</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-indigo-400">E</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">%</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                    {percentReport.map((row) => (
+                      <tr key={row.student.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-gray-900 dark:text-white">{row.student.firstName} {row.student.lastName}</p>
+                          <p className="text-xs text-gray-400">{row.student.admissionNo}</p>
+                        </td>
+                        <td className="px-4 py-3 text-center font-semibold text-emerald-600">{row.present}</td>
+                        <td className="px-4 py-3 text-center font-semibold text-rose-500">{row.absent}</td>
+                        <td className="px-4 py-3 text-center font-semibold text-amber-500">{row.late}</td>
+                        <td className="px-4 py-3 text-center font-semibold text-indigo-400">{row.excused}</td>
+                        <td className="px-4 py-3 text-right">
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ${
+                            row.percentage >= 75 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            : row.percentage >= 50 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                          }`}>
+                            {row.percentage}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

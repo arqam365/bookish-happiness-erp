@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Users, UserCheck, AlertTriangle, Download } from 'lucide-react'
+import { Users, UserCheck, AlertTriangle, Download, Receipt, FileText } from 'lucide-react'
 import dayjs from 'dayjs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Badge } from '@/components/ui/badge'
@@ -188,6 +188,42 @@ function FeeDefaultersReport() {
   )
 }
 
+// ─── Fee Payments Export ──────────────────────────────────────────────────────
+function FeePaymentsReport() {
+  const [loading, setLoading] = useState(false)
+  const handleExport = async () => {
+    setLoading(true)
+    try { await downloadExport('/export/fees', 'fee-payments.xlsx') } finally { setLoading(false) }
+  }
+  return (
+    <div className="flex h-48 flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+      <Receipt className="h-10 w-10 text-gray-300 dark:text-gray-600" />
+      <p className="text-sm text-gray-500">Export all collected fee payments to Excel</p>
+      <Button variant="outline" size="sm" loading={loading} onClick={handleExport}>
+        <Download className="h-4 w-4" />Download Excel
+      </Button>
+    </div>
+  )
+}
+
+// ─── Vouchers Export ──────────────────────────────────────────────────────────
+function VouchersReport() {
+  const [loading, setLoading] = useState(false)
+  const handleExport = async () => {
+    setLoading(true)
+    try { await downloadExport('/export/vouchers', 'vouchers.xlsx') } finally { setLoading(false) }
+  }
+  return (
+    <div className="flex h-48 flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+      <FileText className="h-10 w-10 text-gray-300 dark:text-gray-600" />
+      <p className="text-sm text-gray-500">Export all vouchers to Excel</p>
+      <Button variant="outline" size="sm" loading={loading} onClick={handleExport}>
+        <Download className="h-4 w-4" />Download Excel
+      </Button>
+    </div>
+  )
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function ReportSkeleton() {
   return (
@@ -212,6 +248,8 @@ const REPORTS = [
   { id: 'strength', label: 'Student Strength', icon: Users, description: 'Total enrolment by class' },
   { id: 'attendance', label: 'Attendance', icon: UserCheck, description: 'Daily absentees & summary' },
   { id: 'defaulters', label: 'Fee Defaulters', icon: AlertTriangle, description: 'Pending & overdue payments' },
+  { id: 'fee-payments', label: 'Fee Payments', icon: Receipt, description: 'Export all collected payments' },
+  { id: 'vouchers', label: 'Vouchers', icon: FileText, description: 'Export all accounting vouchers' },
 ]
 
 export default function ReportsPage() {
@@ -233,6 +271,8 @@ export default function ReportsPage() {
         {active === 'strength' && <StudentStrengthReport />}
         {active === 'attendance' && <AttendanceReport />}
         {active === 'defaulters' && <FeeDefaultersReport />}
+        {active === 'fee-payments' && <FeePaymentsReport />}
+        {active === 'vouchers' && <VouchersReport />}
       </div>
     )
   }

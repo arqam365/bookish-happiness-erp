@@ -1,0 +1,52 @@
+name: Feature Request
+description: New feature or improvement for the frontend
+title: "[FE] "
+labels: ["frontend", "feature"]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module
+      options:
+        - Auth
+        - Dashboard
+        - Students
+        - Attendance
+        - Fees
+        - Exams
+        - Accounts
+        - Reports
+        - Settings
+        - Madrasa
+        - Realtime
+        - UX / Polish
+        - Deployment
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: What should be built and why?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      placeholder: |
+        - [ ] criterion 1
+        - [ ] criterion 2
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Urgent
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true

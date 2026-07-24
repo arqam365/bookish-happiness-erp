@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
-import { Plus, ClipboardList, Trophy, CheckCircle } from 'lucide-react'
+import { Plus, ClipboardList, Trophy, CheckCircle, PenLine } from 'lucide-react'
 import dayjs from 'dayjs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,7 @@ import api from '@/lib/api'
 
 interface AcademicYear { id: string; name: string; isActive: boolean }
 interface ExamType { id: string; name: string }
+interface Subject { id: string; name: string; code: string | null }
 interface Exam {
   id: string
   name: string
@@ -73,12 +74,12 @@ function CreateExamModal() {
           <Input label="Exam name *" placeholder="Midterm 2025" error={form.formState.errors.name?.message} {...form.register('name')} />
 
           <div className="grid grid-cols-2 gap-3">
-            <Select label="Academic year *" value={form.watch('academicYearId')} onValueChange={(v) => form.setValue('academicYearId', v)} placeholder="Select" error={form.formState.errors.academicYearId?.message}>
+            <Select label="Academic year *" value={form.watch('academicYearId') ?? ''} onValueChange={(v) => form.setValue('academicYearId', v)} placeholder="Select" error={form.formState.errors.academicYearId?.message}>
               {years.map((y) => <SelectItem key={y.id} value={y.id}>{y.name}{y.isActive ? ' (Active)' : ''}</SelectItem>)}
             </Select>
-            <Select label="Exam type *" value={form.watch('examTypeId')} onValueChange={(v) => form.setValue('examTypeId', v)} placeholder="Select" error={form.formState.errors.examTypeId?.message}>
+            <Select label="Exam type *" value={form.watch('examTypeId') ?? ''} onValueChange={(v) => form.setValue('examTypeId', v)} placeholder="Select" error={form.formState.errors.examTypeId?.message}>
               {examTypes.length === 0
-                ? <SelectItem value="__none__" >No types configured</SelectItem>
+                ? <SelectItem value="__none__">No types configured</SelectItem>
                 : examTypes.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)
               }
             </Select>
@@ -104,7 +105,115 @@ function CreateExamModal() {
   )
 }
 
-interface MarksEntry { studentId: string; subjectId: string; marksObtained: number }
+interface Student { id: string; firstName: string; lastName: string; admissionNo: string }
+
+function MarksEntryModal({ exam }: { exam: Exam }) {
+  const qc = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [selectedSubjectId, setSelectedSubjectId] = useState('')
+  const [marksMap, setMarksMap] = useState<Record<string, string>>({})
+
+  const { data: subjects = [] } = useQuery<Subject[]>({
+    queryKey: ['settings-subjects'],
+    queryFn: () => api.get('/settings/subjects').then((r) => r.data),
+    enabled: open,
+  })
+
+  const { data: studentsRes } = useQuery<{ data: Student[] }>({
+    queryKey: ['students-all'],
+    queryFn: () => api.get('/students', { params: { limit: 200 } }).then((r) => r.data),
+    enabled: open,
+  })
+  const students = studentsRes?.data ?? []
+
+  const submit = useMutation({
+    mutationFn: () => {
+      const entries = students
+        .filter((s) => marksMap[s.id] !== undefined && marksMap[s.id] !== '')
+        .map((s) => ({ studentId: s.id, subjectId: selectedSubjectId, marksObtained: Number(marksMap[s.id]) }))
+      return api.post(`/exams/${exam.id}/marks`, { entries }).then((r) => r.data)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['exam-ranking', exam.id] })
+      setOpen(false)
+      setMarksMap({})
+      setSelectedSubjectId('')
+    },
+  })
+
+  const handleClose = (v: boolean) => {
+    setOpen(v)
+    if (!v) { setMarksMap({}); setSelectedSubjectId('') }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline"><PenLine className="h-4 w-4" />Enter marks</Button>
+      </DialogTrigger>
+      <DialogContent title="Enter marks" description={`Enter student marks for ${exam.name}`}>
+        <div className="space-y-4">
+          <Select
+            label="Subject *"
+            value={selectedSubjectId}
+            onValueChange={setSelectedSubjectId}
+            placeholder="Select subject"
+          >
+            {subjects.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}{s.code ? ` (${s.code})` : ''}</SelectItem>)}
+          </Select>
+
+          {selectedSubjectId && (
+            <div className="max-h-80 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Student</th>
+                    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Adm. No</th>
+                    <th className="w-28 px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Marks / {exam.totalMarks}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                  {students.length === 0 ? (
+                    <tr><td colSpan={3} className="px-3 py-4 text-center text-xs text-gray-400">No students found.</td></tr>
+                  ) : students.map((s) => (
+                    <tr key={s.id}>
+                      <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">{s.firstName} {s.lastName}</td>
+                      <td className="px-3 py-2 text-xs text-gray-400">{s.admissionNo}</td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="number"
+                          min="0"
+                          max={exam.totalMarks}
+                          value={marksMap[s.id] ?? ''}
+                          onChange={(e) => setMarksMap((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                          className="w-24 rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#4F46E5] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                          placeholder="0"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
+            <Button
+              size="sm"
+              disabled={!selectedSubjectId || Object.values(marksMap).every((v) => v === '')}
+              loading={submit.isPending}
+              onClick={() => submit.mutate()}
+            >
+              Save marks
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 interface RankRow {
   rank: number
   student: { id: string; firstName: string; lastName: string; admissionNo: string }
@@ -115,7 +224,6 @@ interface RankRow {
 
 function ExamDetail({ exam }: { exam: Exam }) {
   const qc = useQueryClient()
-  const [entries, setEntries] = useState<MarksEntry[]>([])
 
   const { data: ranking = [], isLoading: rankLoading } = useQuery<RankRow[]>({
     queryKey: ['exam-ranking', exam.id],
@@ -141,6 +249,7 @@ function ExamDetail({ exam }: { exam: Exam }) {
           <Badge variant={exam.isPublished ? 'success' : 'warning'}>
             {exam.isPublished ? 'Published' : 'Draft'}
           </Badge>
+          {!exam.isPublished && <MarksEntryModal exam={exam} />}
           {!exam.isPublished && (
             <Button size="sm" variant="outline" loading={publish.isPending} onClick={() => publish.mutate()}>
               <CheckCircle className="h-4 w-4" />Publish results

@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
-import { Plus, BookOpen, Heart, HandCoins } from 'lucide-react'
+import { Plus, BookOpen, Heart, HandCoins, Pencil, Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -25,14 +25,14 @@ function fmt(n: number) {
 interface HifzSummary { status: string; count: number }
 interface HifzRecord {
   id: string
-  student: { firstName: string; lastName: string; admissionNo: string }
-  surahFrom: number
-  surahTo: number
-  ayahFrom: number
-  ayahTo: number
-  recitedOn: string
+  surahName: string
+  surahNumber: number
+  fromAyat: number
+  toAyat: number
+  evaluatedAt: string
   status: string
   remarks: string | null
+  student: { firstName: string; lastName: string; admissionNo: string }
 }
 
 const hifzSchema = z.object({
@@ -56,6 +56,11 @@ function HifzTab() {
     queryFn: () => api.get('/madrasa/hifz/summary').then((r) => r.data),
   })
 
+  const { data: hifzList = [], isLoading: listLoading } = useQuery<{ data: HifzRecord[] }>({
+    queryKey: ['hifz-list'],
+    queryFn: () => api.get('/madrasa/hifz').then((r) => r.data),
+  })
+
   const { data: studentsRes } = useQuery<{ data: Array<{ id: string; firstName: string; lastName: string; admissionNo: string }> }>({
     queryKey: ['students', { search: studentSearch }],
     queryFn: () => api.get('/students', { params: { search: studentSearch, limit: 8 } }).then((r) => r.data),
@@ -65,7 +70,19 @@ function HifzTab() {
 
   const record = useMutation({
     mutationFn: (data: any) => api.post('/madrasa/hifz', data).then((r) => r.data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['hifz-summary'] }); setOpen(false); form.reset(); setStudentSearch('') },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['hifz-summary'] })
+      qc.invalidateQueries({ queryKey: ['hifz-list'] })
+      setOpen(false); form.reset(); setStudentSearch('')
+    },
+  })
+
+  const deleteHifz = useMutation({
+    mutationFn: (id: string) => api.delete(`/madrasa/hifz/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['hifz-summary'] })
+      qc.invalidateQueries({ queryKey: ['hifz-list'] })
+    },
   })
 
   const STATUS_COLORS: Record<string, 'success' | 'warning' | 'danger'> = {
@@ -128,11 +145,41 @@ function HifzTab() {
         </Dialog>
       </div>
 
-      {summary.length === 0 && (
-        <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <p className="text-sm text-gray-400">No Hifz records yet.</p>
-        </div>
-      )}
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        {listLoading ? (
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            {[...Array(4)].map((_, i) => <div key={i} className="flex items-center gap-4 px-5 py-3"><div className="h-4 w-full animate-pulse rounded bg-gray-100 dark:bg-gray-700" /></div>)}
+          </div>
+        ) : (hifzList as any)?.data?.length === 0 ? (
+          <p className="py-12 text-center text-sm text-gray-400">No Hifz records yet.</p>
+        ) : (
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            {((hifzList as any)?.data ?? []).map((h: HifzRecord) => (
+              <div key={h.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {h.student.firstName} {h.student.lastName}
+                    <span className="ml-2 text-xs font-normal text-gray-400">{h.student.admissionNo}</span>
+                  </p>
+                  <p className="text-xs text-gray-500">{h.surahName} · Ayah {h.fromAyat}–{h.toAyat}</p>
+                  {h.remarks && <p className="text-xs text-gray-400 italic">{h.remarks}</p>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={STATUS_COLORS[h.status] ?? 'default'}>{h.status}</Badge>
+                  <p className="text-xs text-gray-400">{dayjs(h.evaluatedAt).format('D MMM YYYY')}</p>
+                  <button
+                    title="Delete"
+                    onClick={() => { if (confirm('Delete this Hifz record?')) deleteHifz.mutate(h.id) }}
+                    className="rounded p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
