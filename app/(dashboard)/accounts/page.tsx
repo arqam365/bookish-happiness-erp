@@ -128,10 +128,9 @@ function VoucherTab() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<VoucherForm>({ resolver: zodResolver(voucherSchema) as any })
 
-  const { data: accounts = [] } = useQuery<Account[]>({
+  const { data: accounts = [], refetch: refetchAccounts } = useQuery<Account[]>({
     queryKey: ['accounts-chart'],
     queryFn: () => api.get('/accounts/chart-of-accounts').then((r) => r.data),
-    enabled: open,
   })
 
   const { data: voucherRes, isLoading: vouchersLoading } = useQuery<{ data: VoucherRow[]; total: number; totalPages: number }>({
@@ -151,12 +150,30 @@ function VoucherTab() {
     },
   })
 
+  const seedAccounts = useMutation({
+    mutationFn: () => api.post('/accounts/seed-defaults').then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['accounts-chart'] })
+      refetchAccounts()
+    },
+  })
+
+  const noAccounts = accounts.length === 0
+
   return (
     <div className="space-y-4">
+      {noAccounts && (
+        <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800/40 dark:bg-amber-900/20">
+          <p className="text-sm text-amber-800 dark:text-amber-300">No chart of accounts set up. Seed default school accounts to get started.</p>
+          <Button size="sm" variant="outline" loading={seedAccounts.isPending} onClick={() => seedAccounts.mutate()}>
+            Setup default accounts
+          </Button>
+        </div>
+      )}
       <div className="flex justify-end">
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) form.reset() }}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4" />New voucher</Button>
+            <Button size="sm" disabled={noAccounts}><Plus className="h-4 w-4" />New voucher</Button>
           </DialogTrigger>
           <DialogContent title="Voucher entry" description="Record a debit or credit entry.">
             <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
@@ -168,10 +185,7 @@ function VoucherTab() {
                 </Select>
               </div>
               <Select label="Account *" value={form.watch('accountId') ?? ''} onValueChange={(v) => form.setValue('accountId', v)} placeholder="Select account" error={form.formState.errors.accountId?.message}>
-                {accounts.length === 0
-                  ? <SelectItem value="__none__">No accounts configured</SelectItem>
-                  : accounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)
-                }
+                {accounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)}
               </Select>
               <Input label="Amount *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
               <Input label="Description *" error={form.formState.errors.description?.message} {...form.register('description')} />
@@ -254,6 +268,14 @@ function LedgerTab() {
     queryFn: () => api.get(`/accounts/ledger/${accountId}`).then((r) => r.data),
     enabled: !!accountId,
   })
+
+  if (chartAccounts.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+        <p className="text-sm text-gray-400">No accounts found. Set up default accounts from the Voucher Entry tab.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
