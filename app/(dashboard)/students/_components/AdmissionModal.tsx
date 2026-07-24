@@ -135,7 +135,7 @@ export function AdmissionModal() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Gender</label>
                 <Select
-                  value={form1.watch('gender')}
+                  value={form1.watch('gender') ?? ''}
                   onValueChange={(v) => form1.setValue('gender', v as 'MALE' | 'FEMALE' | 'OTHER')}
                   placeholder="Select"
                 >
