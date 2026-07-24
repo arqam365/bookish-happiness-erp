@@ -66,7 +66,8 @@ export function AdmissionModal() {
 
   const admit = useMutation({
     mutationFn: async (data: { student: Step1Data; enrollment: Step2Data }) => {
-      const student = await api.post('/students', data.student).then((r) => r.data)
+      const payload = Object.fromEntries(Object.entries(data.student).filter(([, v]) => v !== '' && v !== undefined))
+      const student = await api.post('/students', payload).then((r) => r.data)
       await api.post(`/students/${student.id}/enroll`, data.enrollment)
       return student
     },
