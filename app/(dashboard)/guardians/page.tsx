@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Search, Eye, Lock, Printer, QrCode } from 'lucide-react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { Search, Eye, Lock, Printer, QrCode, Plus } from 'lucide-react'
 import dayjs from 'dayjs'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod/v4'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { cn } from '@/lib/utils'
 import api from '@/lib/api'
 import { useDebounce } from '@/hooks/useDebounce'
 
@@ -47,6 +51,72 @@ interface PaginatedResponse<T> {
   total: number
   page: number
   pageSize: number
+}
+
+const guardianSchema = z.object({
+  firstName: z.string().min(1, 'Required'),
+  lastName: z.string().min(1, 'Required'),
+  relationship: z.string().min(1, 'Required'),
+  phone: z.string().min(1, 'Required'),
+  email: z.string().optional(),
+  occupation: z.string().optional(),
+  address: z.string().optional(),
+  isSponsor: z.boolean().optional(),
+})
+type GuardianForm = z.infer<typeof guardianSchema>
+
+function AddGuardianModal({ isSponsor = false }: { isSponsor?: boolean }) {
+  const qc = useQueryClient()
+  const [open, setOpen] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const form = useForm<GuardianForm>({ resolver: zodResolver(guardianSchema) as any, defaultValues: { isSponsor } })
+
+  const create = useMutation({
+    mutationFn: (data: GuardianForm) => api.post('/guardians', { ...data, isSponsor }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['guardians'] })
+      qc.invalidateQueries({ queryKey: ['sponsors'] })
+      setOpen(false)
+      form.reset({ isSponsor })
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) form.reset({ isSponsor }) }}>
+      <DialogTrigger asChild>
+        <Button size="sm"><Plus className="h-4 w-4" />{isSponsor ? 'Add sponsor' : 'Add guardian'}</Button>
+      </DialogTrigger>
+      <DialogContent
+        title={isSponsor ? 'Add sponsor' : 'Add guardian'}
+        description={isSponsor ? 'Register a new sponsor.' : 'Register a new guardian.'}
+      >
+        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="First name *" placeholder="First name" error={form.formState.errors.firstName?.message} {...form.register('firstName')} />
+            <Input label="Last name *" placeholder="Last name" error={form.formState.errors.lastName?.message} {...form.register('lastName')} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label={isSponsor ? 'Sponsor type *' : 'Relationship *'}
+              placeholder={isSponsor ? 'Individual / NGO / Trust' : 'Father / Mother / Uncle'}
+              error={form.formState.errors.relationship?.message}
+              {...form.register('relationship')}
+            />
+            <Input label="Phone *" placeholder="+91 98765 43210" error={form.formState.errors.phone?.message} {...form.register('phone')} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Email" type="email" placeholder="email@example.com" {...form.register('email')} />
+            <Input label={isSponsor ? 'Organization' : 'Occupation'} placeholder={isSponsor ? 'Organization name' : 'Engineer / Farmer'} {...form.register('occupation')} />
+          </div>
+          <Input label="Address" placeholder="Full address" {...form.register('address')} />
+          <div className="flex justify-end gap-2 pt-2">
+            <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
+            <Button type="submit" size="sm" loading={create.isPending}>{isSponsor ? 'Add sponsor' : 'Add guardian'}</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 function ActionButtons({ id }: { id: string }) {
@@ -296,10 +366,16 @@ function SponsorsTable() {
 }
 
 export default function GuardiansPage() {
+  const [tab, setTab] = useState('guardians')
+
   return (
     <div>
-      <PageHeader title="Guardians" subtitle="Manage guardians and sponsors linked to students." />
-      <Tabs defaultValue="guardians">
+      <PageHeader
+        title="Guardians"
+        subtitle="Manage guardians and sponsors linked to students."
+        action={<AddGuardianModal isSponsor={tab === 'sponsors'} />}
+      />
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="guardians">Guardians</TabsTrigger>
           <TabsTrigger value="sponsors">Sponsors</TabsTrigger>
