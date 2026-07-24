@@ -1,12 +1,15 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, Calendar, Droplets, Globe } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, Link2 } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Spinner } from '@/components/ui/spinner'
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
+import { Select, SelectItem } from '@/components/ui/select'
 import api from '@/lib/api'
 
 interface Enrollment {
@@ -50,6 +53,73 @@ interface Student {
   isActive: boolean
   enrollments: Enrollment[]
   guardians: Guardian[]
+}
+
+interface GuardianListItem { id: string; firstName: string; lastName: string; phone: string; relationship: string }
+
+function LinkGuardianModal({ studentId }: { studentId: string }) {
+  const [open, setOpen] = useState(false)
+  const [guardianId, setGuardianId] = useState('')
+  const [isPrimary, setIsPrimary] = useState(false)
+  const qc = useQueryClient()
+
+  const { data: guardians = [] } = useQuery<GuardianListItem[]>({
+    queryKey: ['guardians-all'],
+    queryFn: () => api.get('/guardians?limit=200').then((r) => r.data.data ?? r.data),
+    enabled: open,
+  })
+
+  const link = useMutation({
+    mutationFn: () => api.post(`/guardians/students/${studentId}/link`, { guardianId, isPrimary }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student', studentId] })
+      setOpen(false)
+      setGuardianId('')
+      setIsPrimary(false)
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Link2 className="h-4 w-4" />
+        Link guardian
+      </Button>
+      <DialogContent title="Link guardian" description="Select an existing guardian to link to this student.">
+        <div className="space-y-4">
+          <Select
+            label="Guardian"
+            value={guardianId}
+            onValueChange={setGuardianId}
+            placeholder="Select guardian"
+          >
+            {guardians.map((g) => (
+              <SelectItem key={g.id} value={g.id}>
+                {g.firstName} {g.lastName} · {g.relationship} · {g.phone}
+              </SelectItem>
+            ))}
+          </Select>
+          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input
+              type="checkbox"
+              checked={isPrimary}
+              onChange={(e) => setIsPrimary(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            Mark as primary guardian
+          </label>
+          <div className="flex justify-end gap-2 pt-2">
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" size="sm">Cancel</Button>
+            </DialogClose>
+            <Button size="sm" disabled={!guardianId} loading={link.isPending} onClick={() => link.mutate()}>
+              Link
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 const GENDERS: Record<string, string> = { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other' }
@@ -213,6 +283,9 @@ export default function StudentProfilePage() {
 
         {/* Guardians tab */}
         <TabsContent value="guardians">
+          <div className="mb-3 flex justify-end">
+            <LinkGuardianModal studentId={student.id} />
+          </div>
           <div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             {student.guardians.length === 0 ? (
               <p className="py-12 text-center text-sm text-gray-400">No guardians linked yet.</p>

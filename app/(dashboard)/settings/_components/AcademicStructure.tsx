@@ -129,11 +129,11 @@ function AcademicYears() {
       ) : years.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No academic years yet. Add one to get started.</p>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {years.map((year) => (
             <div key={year.id} className="flex items-center justify-between py-3">
               <div>
-                <p className="text-sm font-medium text-gray-900">{year.name}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{year.name}</p>
                 <p className="text-xs text-gray-500">
                   {formatDate(year.startDate)} — {formatDate(year.endDate)}
                 </p>
@@ -246,7 +246,7 @@ function ClassesAndSections() {
       ) : classes.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No classes yet. Add your first class.</p>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {classes.map((cls) => {
             const isExpanded = expandedClass === cls.id
             const sectionForm = sectionForms[cls.id] ?? { name: '', capacity: '' }
@@ -262,7 +262,7 @@ function ClassesAndSections() {
                     ) : (
                       <ChevronRight className="h-4 w-4 text-gray-400" />
                     )}
-                    <span className="text-sm font-medium text-gray-900">{cls.name}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{cls.name}</span>
                     {cls.code && <span className="text-xs text-gray-400">({cls.code})</span>}
                   </div>
                   <span className="text-xs text-gray-400">{cls.sections.length} section{cls.sections.length !== 1 ? 's' : ''}</span>
@@ -274,7 +274,7 @@ function ClassesAndSections() {
                       {cls.sections.map((s) => (
                         <span
                           key={s.id}
-                          className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
+                          className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
                         >
                           {s.name}{s.capacity ? ` (${s.capacity})` : ''}
                         </span>
@@ -412,7 +412,7 @@ function Subjects() {
           {subjects.map((s) => (
             <span
               key={s.id}
-              className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+              className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
             >
               {s.name}{s.code ? ` · ${s.code}` : ''}
             </span>
@@ -476,11 +476,11 @@ function Courses() {
       ) : courses.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No courses yet. Add your first program.</p>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {courses.map((c) => (
             <div key={c.id} className="flex items-center justify-between py-3">
               <div>
-                <p className="text-sm font-medium text-gray-900">{c.name}{c.code ? <span className="ml-2 text-xs text-gray-400">({c.code})</span> : null}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{c.name}{c.code ? <span className="ml-2 text-xs text-gray-400">({c.code})</span> : null}</p>
                 {c.description && <p className="text-xs text-gray-500">{c.description}</p>}
               </div>
             </div>
@@ -542,7 +542,7 @@ function Batches() {
       ) : (
         <div className="flex flex-wrap gap-2">
           {batches.map((b) => (
-            <span key={b.id} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700" title={b.description ?? ''}>
+            <span key={b.id} className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300" title={b.description ?? ''}>
               {b.name}
             </span>
           ))}
