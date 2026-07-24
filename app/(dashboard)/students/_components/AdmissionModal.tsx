@@ -149,13 +149,13 @@ export function AdmissionModal() {
             <div className="grid grid-cols-2 gap-3">
               <Input
                 label="First name *"
-                placeholder="Muhammad"
+                placeholder="Rahul"
                 error={form1.formState.errors.firstName?.message}
                 {...form1.register('firstName')}
               />
               <Input
                 label="Last name *"
-                placeholder="Abdullah"
+                placeholder="Sharma"
                 error={form1.formState.errors.lastName?.message}
                 {...form1.register('lastName')}
               />
@@ -169,13 +169,13 @@ export function AdmissionModal() {
               />
               <Input
                 label="Phone"
-                placeholder="+92 300 0000000"
+                placeholder="+91 98765 43210"
                 {...form1.register('phone')}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Religion" placeholder="Islam" {...form1.register('religion')} />
+              <Input label="Religion" placeholder="Hindu / Muslim / Christian…" {...form1.register('religion')} />
               <Input label="Blood group" placeholder="A+" {...form1.register('bloodGroup')} />
             </div>
 
