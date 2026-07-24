@@ -255,8 +255,15 @@ function VoucherTab() {
 // ─── Ledger ───────────────────────────────────────────────────────────────────
 interface LedgerEntry { id: string; date: string; description: string; voucherNo: string; debit: number; credit: number; balance: number }
 
+const ACCOUNT_TYPES = ['ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE'] as const
+
 function LedgerTab() {
+  const qc = useQueryClient()
   const [accountId, setAccountId] = useState('')
+  const [addOpen, setAddOpen] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newCode, setNewCode] = useState('')
+  const [newType, setNewType] = useState('')
 
   const { data: chartAccounts = [] } = useQuery<Account[]>({
     queryKey: ['accounts-chart'],
@@ -269,20 +276,47 @@ function LedgerTab() {
     enabled: !!accountId,
   })
 
-  if (chartAccounts.length === 0) {
-    return (
-      <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-        <p className="text-sm text-gray-400">No accounts found. Set up default accounts from the Voucher Entry tab.</p>
-      </div>
-    )
-  }
+  const createAccount = useMutation({
+    mutationFn: () => api.post('/accounts/chart-of-accounts', { name: newName, code: newCode, type: newType }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['accounts-chart'] })
+      setAddOpen(false)
+      setNewName(''); setNewCode(''); setNewType('')
+    },
+  })
 
   return (
     <div className="space-y-4">
-      <div className="min-w-[240px]">
-        <Select label="Account" value={accountId} onValueChange={setAccountId} placeholder="Select account to view ledger">
-          {chartAccounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)}
-        </Select>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="min-w-[280px] flex-1">
+          <Select label="Account" value={accountId} onValueChange={setAccountId} placeholder="Select account to view ledger">
+            {chartAccounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)}
+          </Select>
+        </div>
+        <div className="pb-0.5">
+          <Dialog open={addOpen} onOpenChange={(v) => { setAddOpen(v); if (!v) { setNewName(''); setNewCode(''); setNewType('') } }}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline"><Plus className="h-4 w-4" />New account</Button>
+            </DialogTrigger>
+            <DialogContent title="New account" description="Add an account to your chart of accounts.">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <Input label="Account code *" placeholder="e.g. 1002" value={newCode} onChange={(e) => setNewCode(e.target.value)} />
+                  <Select label="Type *" value={newType} onValueChange={setNewType} placeholder="Select type">
+                    {ACCOUNT_TYPES.map((t) => <SelectItem key={t} value={t}>{t.charAt(0) + t.slice(1).toLowerCase()}</SelectItem>)}
+                  </Select>
+                </div>
+                <Input label="Account name *" placeholder="e.g. Petty Cash" value={newName} onChange={(e) => setNewName(e.target.value)} />
+                <div className="flex justify-end gap-2 pt-2">
+                  <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
+                  <Button size="sm" loading={createAccount.isPending} disabled={!newName || !newCode || !newType} onClick={() => createAccount.mutate()}>
+                    Add account
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {!accountId ? (
