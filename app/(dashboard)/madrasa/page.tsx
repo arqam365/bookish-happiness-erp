@@ -18,7 +18,7 @@ import { useAuthStore } from '@/store/auth.store'
 import api from '@/lib/api'
 
 function fmt(n: number) {
-  return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 }).format(n)
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 }
 
 // ─── Hifz ────────────────────────────────────────────────────────────────────

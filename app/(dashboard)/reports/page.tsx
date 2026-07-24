@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import api from '@/lib/api'
 
 function fmt(n: number) {
-  return new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 }).format(n)
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 }
 
 async function downloadExport(url: string, filename: string) {

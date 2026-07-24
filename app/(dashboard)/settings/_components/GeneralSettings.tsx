@@ -144,7 +144,6 @@ export function GeneralSettings() {
                   className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
                   {...settingsForm.register('timezone')}
                 >
-                  <option value="Asia/Karachi">Asia/Karachi (PKT)</option>
                   <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
                   <option value="Asia/Dubai">Asia/Dubai (GST)</option>
                   <option value="Asia/Riyadh">Asia/Riyadh (AST)</option>
@@ -170,7 +169,6 @@ export function GeneralSettings() {
                   className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]"
                   {...settingsForm.register('currency')}
                 >
-                  <option value="PKR">PKR — Pakistani Rupee</option>
                   <option value="INR">INR — Indian Rupee</option>
                   <option value="AED">AED — UAE Dirham</option>
                   <option value="SAR">SAR — Saudi Riyal</option>

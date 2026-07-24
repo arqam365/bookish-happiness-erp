@@ -16,8 +16,8 @@ import { Select, SelectItem } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import api from '@/lib/api'
 
-const PKR = (n: number) => new Intl.NumberFormat('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 }).format(n)
-const fmt = (n: number) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
+const fmtCur = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
+const fmt = (n: number) => new Intl.NumberFormat('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FeeReceipt {
@@ -53,10 +53,10 @@ function ReceiptPrint({ receipt }: { receipt: FeeReceipt }) {
         <div className="flex justify-between"><span className="text-gray-500">Student</span><span className="text-gray-900 dark:text-white">{receipt.student.firstName} {receipt.student.lastName}</span></div>
         <div className="flex justify-between"><span className="text-gray-500">Adm. No</span><span className="font-mono text-gray-900 dark:text-white">{receipt.student.admissionNo}</span></div>
         {receipt.feeStructure && <div className="flex justify-between"><span className="text-gray-500">Fee type</span><span className="text-gray-900 dark:text-white">{receipt.feeStructure.name}</span></div>}
-        {receipt.discount > 0 && <div className="flex justify-between"><span className="text-gray-500">Discount</span><span className="text-emerald-600">-{PKR(receipt.discount)}</span></div>}
-        {receipt.lateFee > 0 && <div className="flex justify-between"><span className="text-gray-500">Late fee</span><span className="text-rose-500">+{PKR(receipt.lateFee)}</span></div>}
+        {receipt.discount > 0 && <div className="flex justify-between"><span className="text-gray-500">Discount</span><span className="text-emerald-600">-{fmtCur(receipt.discount)}</span></div>}
+        {receipt.lateFee > 0 && <div className="flex justify-between"><span className="text-gray-500">Late fee</span><span className="text-rose-500">+{fmtCur(receipt.lateFee)}</span></div>}
         <hr className="my-2 border-gray-200 dark:border-gray-600" />
-        <div className="flex justify-between text-base font-bold"><span>Total Paid</span><span className="text-[#4F46E5]">{PKR(receipt.totalAmount)}</span></div>
+        <div className="flex justify-between text-base font-bold"><span>Total Paid</span><span className="text-[#4F46E5]">{fmtCur(receipt.totalAmount)}</span></div>
         {receipt.paymentMethod && <div className="flex justify-between text-xs"><span className="text-gray-500">Method</span><span className="text-gray-700 dark:text-gray-300">{receipt.paymentMethod.replace('_', ' ')}</span></div>}
       </div>
       <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => window.print()}>
@@ -164,14 +164,14 @@ function CollectPaymentModal() {
               ? <SelectItem value="__none__">No fee types configured</SelectItem>
               : structures.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.name} — {PKR(Number(s.amount))} ({s.academicYear.name})
+                    {s.name} — {fmtCur(Number(s.amount))} ({s.academicYear.name})
                   </SelectItem>
                 ))
             }
           </Select>
 
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Amount (PKR) *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
+            <Input label="Amount (INR) *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
             <Input label="Discount" type="number" min="0" {...form.register('discount')} />
           </div>
 
@@ -233,8 +233,8 @@ function OverviewTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon={<TrendingUp className="h-5 w-5 text-emerald-600" />} label="Collected today" value={stats ? PKR(stats.todayCollection) : '—'} color="bg-emerald-50 dark:bg-emerald-900/30" />
-        <StatCard icon={<Clock className="h-5 w-5 text-amber-500" />} label="Pending" value={stats ? PKR(stats.pendingAmount) : '—'} sub={stats ? `${stats.pendingCount} payments` : undefined} color="bg-amber-50 dark:bg-amber-900/30" />
+        <StatCard icon={<TrendingUp className="h-5 w-5 text-emerald-600" />} label="Collected today" value={stats ? fmtCur(stats.todayCollection) : '—'} color="bg-emerald-50 dark:bg-emerald-900/30" />
+        <StatCard icon={<Clock className="h-5 w-5 text-amber-500" />} label="Pending" value={stats ? fmtCur(stats.pendingAmount) : '—'} sub={stats ? `${stats.pendingCount} payments` : undefined} color="bg-amber-50 dark:bg-amber-900/30" />
         <StatCard icon={<AlertCircle className="h-5 w-5 text-rose-500" />} label="Overdue" value={stats ? String(stats.overdueCount) : '—'} sub="payments" color="bg-rose-50 dark:bg-rose-900/30" />
       </div>
 
@@ -268,7 +268,7 @@ function OverviewTab() {
                 </div>
                 <div className="flex items-center gap-3">
                   {d.dueDate && <p className="text-xs text-gray-400">Due: {dayjs(d.dueDate).format('D MMM YYYY')}</p>}
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{PKR(d.totalAmount)}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{fmtCur(d.totalAmount)}</p>
                   <Badge variant={d.status === 'OVERDUE' ? 'danger' : 'warning'}>{d.status}</Badge>
                 </div>
               </div>
@@ -457,10 +457,10 @@ function FeeStructuresTab() {
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Input label="Amount (PKR) *" type="number" min="0" error={structForm.formState.errors.amount?.message} {...structForm.register('amount')} />
+                  <Input label="Amount (INR) *" type="number" min="0" error={structForm.formState.errors.amount?.message} {...structForm.register('amount')} />
                   <Input label="Due day (1–31)" type="number" min="1" max="31" placeholder="e.g. 10" {...structForm.register('dueDay')} />
                 </div>
-                <Input label="Late fee (PKR)" type="number" min="0" placeholder="0" {...structForm.register('lateFeeAmount')} />
+                <Input label="Late fee (INR)" type="number" min="0" placeholder="0" {...structForm.register('lateFeeAmount')} />
                 <div className="flex justify-end gap-2 pt-2">
                   <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
                   <Button type="submit" size="sm" loading={createStruct.isPending}>Create</Button>
@@ -502,9 +502,9 @@ function FeeStructuresTab() {
                   <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{s.name}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{s.feeCategory.name}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{s.academicYear.name}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">{PKR(Number(s.amount))}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">{fmtCur(Number(s.amount))}</td>
                   <td className="px-4 py-3 text-center text-gray-500">{s.dueDay ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-rose-500">{s.lateFeeAmount ? PKR(Number(s.lateFeeAmount)) : '—'}</td>
+                  <td className="px-4 py-3 text-right text-rose-500">{s.lateFeeAmount ? fmtCur(Number(s.lateFeeAmount)) : '—'}</td>
                 </tr>
               ))
             )}

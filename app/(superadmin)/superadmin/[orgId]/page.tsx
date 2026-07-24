@@ -45,7 +45,7 @@ const INST_TYPE_COLORS: Record<string, string> = {
 }
 
 function fmt(n: number) {
-  return new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
+  return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
 }
 
 function OrgInitial({ name }: { name: string }) {
@@ -84,7 +84,7 @@ export default function OrgDetailPage() {
 
   if (!org) return <p className="text-sm text-gray-400">Organization not found.</p>
 
-  const currency = org.orgSettings?.currency ?? 'PKR'
+  const currency = org.orgSettings?.currency ?? 'INR'
 
   const statCards = [
     {
