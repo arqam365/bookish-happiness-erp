@@ -149,13 +149,13 @@ export function AdmissionModal() {
             <div className="grid grid-cols-2 gap-3">
               <Input
                 label="First name *"
-                placeholder="Rahul"
+                placeholder="First name"
                 error={form1.formState.errors.firstName?.message}
                 {...form1.register('firstName')}
               />
               <Input
                 label="Last name *"
-                placeholder="Sharma"
+                placeholder="Last name"
                 error={form1.formState.errors.lastName?.message}
                 {...form1.register('lastName')}
               />
