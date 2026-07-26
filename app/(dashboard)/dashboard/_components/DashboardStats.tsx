@@ -15,6 +15,15 @@ interface Stats {
 
 async function fetchStats(): Promise<Stats> {
   const { data } = await api.get('/dashboard/stats')
+  // Handle both flat (new source) and nested (old dist) response shapes
+  if (data.attendance !== undefined || data.fees !== undefined) {
+    return {
+      totalStudents: data.totalStudents,
+      attendanceToday: parseFloat(data.attendance?.rate ?? '0'),
+      feeCollectedToday: Number(data.fees?.todayCollection ?? 0),
+      pendingFees: Number(data.fees?.pendingAmount ?? 0),
+    }
+  }
   return data
 }
 
