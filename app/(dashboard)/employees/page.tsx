@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -95,6 +96,7 @@ function AddEmployeeModal() {
 }
 
 export default function EmployeesPage() {
+  const router = useRouter()
   const [search, setSearch] = useState('')
   const [department, setDepartment] = useState('')
   const [page, setPage] = useState(1)
@@ -177,7 +179,7 @@ export default function EmployeesPage() {
                 </tr>
               ) : (
                 rows.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60 cursor-pointer">
+                  <tr key={emp.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60 cursor-pointer" onClick={() => router.push(`/employees/${emp.id}`)}>
                     <td className="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400">{emp.employeeId}</td>
                     <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
                       <div className="flex items-center gap-2">

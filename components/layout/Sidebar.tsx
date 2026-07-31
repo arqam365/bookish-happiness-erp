@@ -162,15 +162,17 @@ export function Sidebar() {
         <div className="border-t border-gray-100 dark:border-gray-800 p-2">
           {sidebarOpen ? (
             <div className="flex items-center gap-2 rounded-lg p-2">
-              <div className="h-8 w-8 shrink-0 rounded-full bg-indigo-100 dark:bg-white/10 flex items-center justify-center">
-                <span className="text-xs font-semibold text-[#4F46E5] dark:text-white">
-                  {user.firstName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
-                <p className="truncate text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-              </div>
+              <Link href="/profile" className="flex min-w-0 flex-1 items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="h-8 w-8 shrink-0 rounded-full bg-indigo-100 dark:bg-white/10 flex items-center justify-center">
+                  <span className="text-xs font-semibold text-[#4F46E5] dark:text-white">
+                    {user.firstName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
+                  <p className="truncate text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className="rounded p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
