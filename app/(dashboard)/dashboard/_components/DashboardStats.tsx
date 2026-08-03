@@ -48,7 +48,7 @@ const STAT_CONFIGS = [
   },
   {
     key: 'pendingFees' as const,
-    label: 'Pending Fees',
+    label: 'Pending Contributions',
     icon: AlertCircle,
     format: formatCurrency,
   },

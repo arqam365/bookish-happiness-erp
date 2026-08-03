@@ -198,7 +198,7 @@ function FeePaymentsReport() {
   return (
     <div className="flex h-48 flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
       <Receipt className="h-10 w-10 text-gray-300 dark:text-gray-600" />
-      <p className="text-sm text-gray-500">Export all collected fee payments to Excel</p>
+      <p className="text-sm text-gray-500">Export all collected contributions to Excel</p>
       <Button variant="outline" size="sm" loading={loading} onClick={handleExport}>
         <Download className="h-4 w-4" />Download Excel
       </Button>

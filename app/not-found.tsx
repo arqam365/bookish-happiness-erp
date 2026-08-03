@@ -8,7 +8,7 @@ import {
 const MODULES = [
   { icon: GraduationCap, label: 'Students',   color: 'bg-indigo-500',  stat: '∞ profiles'   },
   { icon: UserCheck,     label: 'Attendance', color: 'bg-blue-500',    stat: 'Bulk marking'  },
-  { icon: DollarSign,    label: 'Fees',       color: 'bg-emerald-500', stat: 'Auto receipts' },
+  { icon: DollarSign,    label: 'Contributions', color: 'bg-emerald-500', stat: 'Auto receipts' },
   { icon: ClipboardList, label: 'Exams',      color: 'bg-orange-500',  stat: 'Auto ranking'  },
   { icon: BookOpen,      label: 'Madrasa',    color: 'bg-rose-500',    stat: 'Hifz tracker'  },
   { icon: BarChart3,     label: 'Reports',    color: 'bg-violet-500',  stat: 'On-demand'     },

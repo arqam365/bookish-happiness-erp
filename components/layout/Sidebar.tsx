@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Guardians', href: '/guardians', icon: UserCheck, permission: 'students:read' },
   { label: 'Employees', href: '/employees', icon: BriefcaseBusiness, permission: 'employees:read' },
   { label: 'Attendance', href: '/attendance', icon: CalendarCheck, permission: 'attendance:read' },
-  { label: 'Fees', href: '/fees', icon: CreditCard, permission: 'fees:read' },
+  { label: 'Contributions', href: '/fees', icon: CreditCard, permission: 'fees:read' },
   { label: 'Examinations', href: '/exams', icon: BookOpen, permission: 'exams:read' },
   { label: 'Accounts', href: '/accounts', icon: Landmark, permission: 'accounts:read' },
   { label: 'Reports', href: '/reports', icon: FileBarChart2, permission: 'reports:read' },

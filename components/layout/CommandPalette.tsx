@@ -24,7 +24,7 @@ const ALL_COMMANDS: CommandItem[] = [
   { id: 'students', label: 'Students', href: '/students', icon: Users, keywords: 'student list enroll admit', permission: 'students:read' },
   { id: 'students-new', label: 'Admit new student', href: '/students?action=new', icon: Users, keywords: 'add create admit student new', permission: 'students:create' },
   { id: 'attendance', label: 'Attendance', href: '/attendance', icon: CalendarCheck, keywords: 'attendance mark daily present absent', permission: 'attendance:read' },
-  { id: 'fees', label: 'Fees', href: '/fees', icon: DollarSign, keywords: 'fees payment collect defaulter', permission: 'fees:read' },
+  { id: 'fees', label: 'Contributions', href: '/fees', icon: DollarSign, keywords: 'contributions payment collect defaulter', permission: 'fees:read' },
   { id: 'exams', label: 'Examinations', href: '/exams', icon: BookOpen, keywords: 'exam test result grade', permission: 'exams:read' },
   { id: 'accounts', label: 'Accounts', href: '/accounts', icon: Wallet, keywords: 'accounts ledger voucher day book', permission: 'accounts:read' },
   { id: 'reports', label: 'Reports', href: '/reports', icon: BarChart2, keywords: 'report analytics strength attendance defaulter', permission: 'reports:read' },

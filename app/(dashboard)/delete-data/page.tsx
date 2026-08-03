@@ -75,7 +75,7 @@ const ENTITIES: DeleteEntity[] = [
   {
     id: 'students',
     title: 'Students',
-    description: 'Soft-delete student profiles. All linked data (attendance, fees, exams) is preserved.',
+    description: 'Soft-delete student profiles. All linked data (attendance, contributions, exams) is preserved.',
     confirmText: 'DELETE STUDENTS',
     endpoint: '/delete-data/students',
     danger: 'critical',

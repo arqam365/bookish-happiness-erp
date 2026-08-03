@@ -46,13 +46,13 @@ function ReceiptPrint({ receipt }: { receipt: FeeReceipt }) {
   return (
     <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
       <div className="space-y-1 text-sm">
-        <p className="text-center font-bold text-gray-900 dark:text-white">Fee Receipt</p>
+        <p className="text-center font-bold text-gray-900 dark:text-white">Contribution Receipt</p>
         <p className="text-center text-xs text-gray-500">{dayjs(receipt.paidAt).format('D MMM YYYY, h:mm A')}</p>
         <hr className="my-2 border-gray-200 dark:border-gray-600" />
         <div className="flex justify-between"><span className="text-gray-500">Receipt No</span><span className="font-mono font-semibold text-gray-900 dark:text-white">{receipt.receiptNo}</span></div>
         <div className="flex justify-between"><span className="text-gray-500">Student</span><span className="text-gray-900 dark:text-white">{receipt.student.firstName} {receipt.student.lastName}</span></div>
         <div className="flex justify-between"><span className="text-gray-500">Adm. No</span><span className="font-mono text-gray-900 dark:text-white">{receipt.student.admissionNo}</span></div>
-        {receipt.feeStructure && <div className="flex justify-between"><span className="text-gray-500">Fee type</span><span className="text-gray-900 dark:text-white">{receipt.feeStructure.name}</span></div>}
+        {receipt.feeStructure && <div className="flex justify-between"><span className="text-gray-500">Contribution type</span><span className="text-gray-900 dark:text-white">{receipt.feeStructure.name}</span></div>}
         {receipt.discount > 0 && <div className="flex justify-between"><span className="text-gray-500">Discount</span><span className="text-emerald-600">-{fmtCur(receipt.discount)}</span></div>}
         {receipt.lateFee > 0 && <div className="flex justify-between"><span className="text-gray-500">Late fee</span><span className="text-rose-500">+{fmtCur(receipt.lateFee)}</span></div>}
         <hr className="my-2 border-gray-200 dark:border-gray-600" />
@@ -123,7 +123,7 @@ function CollectPaymentModal() {
       <DialogTrigger asChild>
         <Button size="sm"><Plus className="h-4 w-4" />Collect payment</Button>
       </DialogTrigger>
-      <DialogContent title="Collect fee payment" description="Record a new payment and generate a receipt.">
+      <DialogContent title="Collect contribution" description="Record a new payment and generate a receipt.">
         <form onSubmit={form.handleSubmit((d) => collect.mutate(d))} className="space-y-4">
           {/* Student search */}
           <div>
@@ -151,7 +151,7 @@ function CollectPaymentModal() {
 
           {/* Fee structure picker */}
           <Select
-            label="Fee type (optional)"
+            label="Contribution type (optional)"
             value={form.watch('feeStructureId') ?? ''}
             onValueChange={(v) => {
               form.setValue('feeStructureId', v)
@@ -519,12 +519,12 @@ function FeeStructuresTab() {
 export default function FeesPage() {
   return (
     <div>
-      <PageHeader title="Fees" subtitle="Collect payments, view history, and manage fee structures." action={<CollectPaymentModal />} />
+      <PageHeader title="Contributions" subtitle="Collect payments, view history, and manage contribution structures." action={<CollectPaymentModal />} />
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="history">Payment History</TabsTrigger>
-          <TabsTrigger value="structures">Fee Structures</TabsTrigger>
+          <TabsTrigger value="structures">Contribution Structures</TabsTrigger>
         </TabsList>
         <TabsContent value="overview"><OverviewTab /></TabsContent>
         <TabsContent value="history"><HistoryTab /></TabsContent>

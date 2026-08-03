@@ -8,10 +8,10 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 const FEATURES = [
   { icon: GraduationCap, label: 'Students',      desc: 'Admissions, profiles, enrollment history, guardian linking.',         color: 'bg-indigo-500' },
   { icon: UserCheck,     label: 'Attendance',     desc: 'Bulk marking per section, monthly grid reports, absentee alerts.',    color: 'bg-blue-500' },
-  { icon: DollarSign,    label: 'Fees',           desc: 'Collect payments, auto-generate receipts, track defaulters.',         color: 'bg-emerald-500' },
+  { icon: DollarSign,    label: 'Contributions',  desc: 'Collect contributions, auto-generate receipts, track defaulters.',    color: 'bg-emerald-500' },
   { icon: ClipboardList, label: 'Examinations',   desc: 'Create exams, enter marks, auto-rank, publish results.',             color: 'bg-orange-500' },
   { icon: BookOpen,      label: 'Madrasa',        desc: 'Hifz tracker, sponsorships, Zakat & Sadaqah donation ledger.',        color: 'bg-rose-500' },
-  { icon: BarChart3,     label: 'Reports',        desc: 'Strength, attendance analytics, fee aging — on demand.',             color: 'bg-violet-500' },
+  { icon: BarChart3,     label: 'Reports',        desc: 'Strength, attendance analytics, contribution aging — on demand.',    color: 'bg-violet-500' },
   { icon: Landmark,      label: 'Accounts',       desc: 'Day book, per-account ledger, double-entry vouchers.',               color: 'bg-cyan-600' },
   { icon: Shield,        label: 'Access Control', desc: 'Custom roles with granular per-module permissions.',                 color: 'bg-slate-500' },
 ]
@@ -19,7 +19,7 @@ const FEATURES = [
 const STEPS = [
   { n: '01', title: 'Register',  desc: 'Create an account, set up your institute, add your logo and timezone.' },
   { n: '02', title: 'Configure', desc: 'Add academic years, classes, sections, subjects, and invite staff.' },
-  { n: '03', title: 'Manage',    desc: 'Admit students, mark attendance, collect fees, and pull reports — all from one dashboard.' },
+  { n: '03', title: 'Manage',    desc: 'Admit students, mark attendance, collect contributions, and pull reports — all from one dashboard.' },
 ]
 
 export default function LandingPage() {
@@ -99,7 +99,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-500 dark:text-gray-400">
-            One platform for students, attendance, fees, exams, accounts, and reporting.
+            One platform for students, attendance, contributions, exams, accounts, and reporting.
             Built for the way educational institutions actually work.
           </p>
 
