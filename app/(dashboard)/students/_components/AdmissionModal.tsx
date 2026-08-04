@@ -491,7 +491,7 @@ export function AdmissionModal() {
 
             {admit.isError && (
               <p className="text-sm text-red-500">
-                Something went wrong. Please try again.
+                {(admit.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Something went wrong. Please try again.'}
               </p>
             )}
 
