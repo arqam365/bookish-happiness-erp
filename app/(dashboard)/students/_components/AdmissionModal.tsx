@@ -76,7 +76,7 @@ export function AdmissionModal() {
   const qc = useQueryClient()
 
   const guardianForm = useForm<NewGuardianData>({ resolver: zodResolver(newGuardianSchema) })
-  const studentForm = useForm<StudentData>({ resolver: zodResolver(studentSchema) })
+  const studentForm = useForm<StudentData>({ resolver: zodResolver(studentSchema), defaultValues: { nationality: 'India' } })
   const enrollmentForm = useForm<EnrollmentData>({ resolver: zodResolver(enrollmentSchema) })
 
   // queries
@@ -424,6 +424,10 @@ export function AdmissionModal() {
             <div className="grid grid-cols-2 gap-3">
               <Input label="Religion" placeholder="Hindu / Muslim / Christian…" {...studentForm.register('religion')} />
               <Input label="Blood group" placeholder="A+" {...studentForm.register('bloodGroup')} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Nationality" {...studentForm.register('nationality')} />
+              <Input label="City" {...studentForm.register('city')} />
             </div>
             <Input
               label="Email"

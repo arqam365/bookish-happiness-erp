@@ -117,7 +117,7 @@ function EditStudentModal({ student }: { student: Student }) {
       dateOfBirth: student.dateOfBirth?.slice(0, 10) ?? '',
       gender: (student.gender as 'MALE' | 'FEMALE' | 'OTHER') ?? undefined,
       religion: student.religion ?? '',
-      nationality: student.nationality ?? '',
+      nationality: student.nationality ?? 'India',
       bloodGroup: student.bloodGroup ?? '',
       phone: student.phone ?? '',
       email: student.email ?? '',
