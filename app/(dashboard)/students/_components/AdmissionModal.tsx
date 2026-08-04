@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod/v4'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { UserPlus, ChevronRight, ChevronLeft } from 'lucide-react'
+import { UserPlus, ChevronRight, ChevronLeft, Search } from 'lucide-react'
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,11 +39,16 @@ type Step2Data = z.infer<typeof step2Schema>
 
 interface AcademicYear { id: string; name: string; isActive: boolean }
 interface ClassItem { id: string; name: string; sections: Array<{ id: string; name: string }> }
+interface GuardianListItem { id: string; firstName: string; lastName: string; phone: string; relationship: string }
 
 export function AdmissionModal() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
   const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
+  const [createdStudentId, setCreatedStudentId] = useState<string | null>(null)
+  const [guardianId, setGuardianId] = useState('')
+  const [isPrimary, setIsPrimary] = useState(true)
+  const [guardianSearch, setGuardianSearch] = useState('')
   const qc = useQueryClient()
 
   const form1 = useForm<Step1Data>({ resolver: zodResolver(step1Schema) })
@@ -61,6 +66,23 @@ export function AdmissionModal() {
     enabled: open,
   })
 
+  const { data: allGuardians = [] } = useQuery<GuardianListItem[]>({
+    queryKey: ['guardians-all'],
+    queryFn: () => api.get('/guardians?limit=500').then((r) => r.data.data ?? r.data),
+    enabled: step === 3,
+  })
+
+  const guardians = useMemo(() => {
+    const q = guardianSearch.toLowerCase()
+    if (!q) return allGuardians
+    return allGuardians.filter(
+      (g) =>
+        `${g.firstName} ${g.lastName}`.toLowerCase().includes(q) ||
+        g.phone.includes(q) ||
+        g.relationship.toLowerCase().includes(q),
+    )
+  }, [allGuardians, guardianSearch])
+
   const selectedClassId = form2.watch('classId')
   const selectedClass = classes.find((c) => c.id === selectedClassId)
 
@@ -71,8 +93,18 @@ export function AdmissionModal() {
       await api.post(`/students/${student.id}/enroll`, data.enrollment)
       return student
     },
-    onSuccess: () => {
+    onSuccess: (student) => {
       qc.invalidateQueries({ queryKey: ['students'] })
+      setCreatedStudentId(student.id)
+      setStep(3)
+    },
+  })
+
+  const linkGuardian = useMutation({
+    mutationFn: () =>
+      api.post(`/guardians/students/${createdStudentId}/link`, { guardianId, isPrimary }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student', createdStudentId] })
       setOpen(false)
       reset()
     },
@@ -81,6 +113,10 @@ export function AdmissionModal() {
   function reset() {
     setStep(1)
     setStep1Data(null)
+    setCreatedStudentId(null)
+    setGuardianId('')
+    setIsPrimary(true)
+    setGuardianSearch('')
     form1.reset()
     form2.reset()
   }
@@ -95,6 +131,8 @@ export function AdmissionModal() {
     admit.mutate({ student: step1Data, enrollment: data })
   }
 
+  const TOTAL_STEPS = 3
+
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset() }}>
       <DialogTrigger asChild>
@@ -105,20 +143,26 @@ export function AdmissionModal() {
       </DialogTrigger>
 
       <DialogContent
-        title={step === 1 ? 'Admit new student' : 'Enrollment details'}
-        description={`Step ${step} of 2 — ${step === 1 ? 'Personal information' : 'Class & academic year'}`}
+        title={step === 1 ? 'Admit new student' : step === 2 ? 'Enrollment details' : 'Link guardian'}
+        description={
+          step === 1
+            ? `Step 1 of ${TOTAL_STEPS} — Personal information`
+            : step === 2
+            ? `Step 2 of ${TOTAL_STEPS} — Class & academic year`
+            : `Step 3 of ${TOTAL_STEPS} — Link an existing guardian (optional)`
+        }
         className="max-w-xl"
       >
         {/* Step indicator */}
         <div className="mb-5 flex items-center gap-2">
-          {[1, 2].map((s) => (
+          {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
                 s < step ? 'bg-emerald-500 text-white' : s === step ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-400'
               }`}>
                 {s < step ? '✓' : s}
               </div>
-              {s < 2 && <div className={`h-px w-12 ${s < step ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
+              {s < TOTAL_STEPS && <div className={`h-px w-12 ${s < step ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
             </div>
           ))}
         </div>
@@ -254,10 +298,73 @@ export function AdmissionModal() {
                 Back
               </Button>
               <Button type="submit" size="sm" loading={admit.isPending}>
-                Admit student
+                Next
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </form>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Search by guardian name, phone, or relationship. If a sibling is already admitted, their guardian will appear here.
+            </p>
+
+            {/* Search input */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search guardian…"
+                value={guardianSearch}
+                onChange={(e) => setGuardianSearch(e.target.value)}
+                className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+              />
+            </div>
+
+            <Select
+              label="Guardian"
+              value={guardianId}
+              onValueChange={setGuardianId}
+              placeholder="Select guardian"
+            >
+              {guardians.map((g) => (
+                <SelectItem key={g.id} value={g.id}>
+                  {g.firstName} {g.lastName} · {g.relationship} · {g.phone}
+                </SelectItem>
+              ))}
+            </Select>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <input
+                type="checkbox"
+                checked={isPrimary}
+                onChange={(e) => setIsPrimary(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Mark as primary guardian
+            </label>
+
+            <div className="flex justify-between gap-2 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => { setOpen(false); reset() }}
+              >
+                Skip for now
+              </Button>
+              <Button
+                size="sm"
+                disabled={!guardianId}
+                loading={linkGuardian.isPending}
+                onClick={() => linkGuardian.mutate()}
+              >
+                Link & finish
+              </Button>
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>
