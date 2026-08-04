@@ -2,15 +2,21 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, Link2 } from 'lucide-react'
+import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, Link2, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod/v4'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
 import { Select, SelectItem } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
 import api from '@/lib/api'
+
+// ── types ────────────────────────────────────────────────────────────────────
 
 interface Enrollment {
   id: string
@@ -56,6 +62,210 @@ interface Student {
 }
 
 interface GuardianListItem { id: string; firstName: string; lastName: string; phone: string; relationship: string }
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+const GENDERS: Record<string, string> = { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other' }
+
+function formatDate(d: string | null) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function apiError(err: unknown) {
+  const e = err as { response?: { data?: { message?: string } } }
+  return e?.response?.data?.message ?? 'Something went wrong. Please try again.'
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</span>
+      <span className="text-sm text-gray-900 dark:text-white">{value || '—'}</span>
+    </div>
+  )
+}
+
+// ── EditStudentModal ──────────────────────────────────────────────────────────
+
+const editSchema = z.object({
+  admissionNo: z.string().min(1, 'Required'),
+  firstName: z.string().min(1, 'Required'),
+  lastName: z.string().min(1, 'Required'),
+  dateOfBirth: z.string().optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  religion: z.string().optional(),
+  nationality: z.string().optional(),
+  bloodGroup: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email('Invalid email').optional().or(z.literal('')),
+  address: z.string().optional(),
+  city: z.string().optional(),
+})
+type EditForm = z.infer<typeof editSchema>
+
+function EditStudentModal({ student }: { student: Student }) {
+  const [open, setOpen] = useState(false)
+  const qc = useQueryClient()
+
+  const form = useForm<EditForm>({
+    resolver: zodResolver(editSchema),
+    defaultValues: {
+      admissionNo: student.admissionNo,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      dateOfBirth: student.dateOfBirth?.slice(0, 10) ?? '',
+      gender: (student.gender as 'MALE' | 'FEMALE' | 'OTHER') ?? undefined,
+      religion: student.religion ?? '',
+      nationality: student.nationality ?? '',
+      bloodGroup: student.bloodGroup ?? '',
+      phone: student.phone ?? '',
+      email: student.email ?? '',
+      address: student.address ?? '',
+      city: student.city ?? '',
+    },
+  })
+
+  const update = useMutation({
+    mutationFn: (data: EditForm) => {
+      const payload = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== '' && v !== undefined))
+      return api.put(`/students/${student.id}`, payload).then((r) => r.data)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student', student.id] })
+      qc.invalidateQueries({ queryKey: ['students'] })
+      setOpen(false)
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Pencil className="h-4 w-4" />
+        Edit student
+      </Button>
+      <DialogContent title="Edit student" description="Update student details." className="max-w-xl">
+        <form onSubmit={form.handleSubmit((d) => update.mutate(d))} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Admission no *"
+              error={form.formState.errors.admissionNo?.message}
+              {...form.register('admissionNo')}
+            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Gender</label>
+              <Select
+                value={form.watch('gender') ?? ''}
+                onValueChange={(v) => form.setValue('gender', v as 'MALE' | 'FEMALE' | 'OTHER')}
+                placeholder="Select"
+              >
+                <SelectItem value="MALE">Male</SelectItem>
+                <SelectItem value="FEMALE">Female</SelectItem>
+                <SelectItem value="OTHER">Other</SelectItem>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="First name *"
+              error={form.formState.errors.firstName?.message}
+              {...form.register('firstName')}
+            />
+            <Input
+              label="Last name *"
+              error={form.formState.errors.lastName?.message}
+              {...form.register('lastName')}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Date of birth" type="date" {...form.register('dateOfBirth')} />
+            <Input label="Phone" placeholder="+91 98765 43210" {...form.register('phone')} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Religion" {...form.register('religion')} />
+            <Input label="Blood group" placeholder="A+" {...form.register('bloodGroup')} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Nationality" {...form.register('nationality')} />
+            <Input label="City" {...form.register('city')} />
+          </div>
+
+          <Input
+            label="Email"
+            type="email"
+            error={form.formState.errors.email?.message}
+            {...form.register('email')}
+          />
+          <Input label="Address" {...form.register('address')} />
+
+          {update.isError && (
+            <p className="text-sm text-red-500">{apiError(update.error)}</p>
+          )}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" size="sm">Cancel</Button>
+            </DialogClose>
+            <Button type="submit" size="sm" loading={update.isPending}>Save changes</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ── DeactivateButton ──────────────────────────────────────────────────────────
+
+function DeactivateButton({ student }: { student: Student }) {
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
+  const qc = useQueryClient()
+
+  const deactivate = useMutation({
+    mutationFn: () => api.delete(`/students/${student.id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['students'] })
+      router.push('/students')
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950" onClick={() => setOpen(true)}>
+        <Trash2 className="h-4 w-4" />
+        Deactivate
+      </Button>
+      <DialogContent title="Deactivate student" description="This will mark the student as inactive. You can reactivate them later.">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Are you sure you want to deactivate <strong>{student.firstName} {student.lastName}</strong>?
+          Their records will be preserved but they will be marked inactive.
+        </p>
+        {deactivate.isError && (
+          <p className="mt-3 text-sm text-red-500">{apiError(deactivate.error)}</p>
+        )}
+        <div className="mt-5 flex justify-end gap-2">
+          <DialogClose asChild>
+            <Button type="button" variant="ghost" size="sm">Cancel</Button>
+          </DialogClose>
+          <Button
+            size="sm"
+            className="bg-red-600 hover:bg-red-700 text-white"
+            loading={deactivate.isPending}
+            onClick={() => deactivate.mutate()}
+          >
+            Deactivate
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ── LinkGuardianModal ─────────────────────────────────────────────────────────
 
 function LinkGuardianModal({ studentId }: { studentId: string }) {
   const [open, setOpen] = useState(false)
@@ -108,6 +318,9 @@ function LinkGuardianModal({ studentId }: { studentId: string }) {
             />
             Mark as primary guardian
           </label>
+          {link.isError && (
+            <p className="text-sm text-red-500">{apiError(link.error)}</p>
+          )}
           <div className="flex justify-end gap-2 pt-2">
             <DialogClose asChild>
               <Button type="button" variant="ghost" size="sm">Cancel</Button>
@@ -122,21 +335,7 @@ function LinkGuardianModal({ studentId }: { studentId: string }) {
   )
 }
 
-const GENDERS: Record<string, string> = { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other' }
-
-function formatDate(d: string | null) {
-  if (!d) return '—'
-  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-}
-
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</span>
-      <span className="text-sm text-gray-900 dark:text-white">{value || '—'}</span>
-    </div>
-  )
-}
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -202,6 +401,12 @@ export default function StudentProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <EditStudentModal student={student} />
+            {student.isActive && <DeactivateButton student={student} />}
+          </div>
         </div>
       </div>
 
@@ -216,7 +421,6 @@ export default function StudentProfilePage() {
         {/* Overview tab */}
         <TabsContent value="overview">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Personal info */}
             <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
               <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Personal Information</h3>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -228,7 +432,6 @@ export default function StudentProfilePage() {
               </div>
             </div>
 
-            {/* Contact info */}
             <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
               <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Contact</h3>
               <div className="space-y-3">

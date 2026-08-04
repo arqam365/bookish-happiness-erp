@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import {
   createColumnHelper,
@@ -9,11 +9,12 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, SlidersHorizontal, Eye, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectItem } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
 import api from '@/lib/api'
 import { useDebounce } from '@/hooks/useDebounce'
 
@@ -51,6 +52,65 @@ const GENDERS: Record<string, string> = { MALE: 'Male', FEMALE: 'Female', OTHER:
 function formatDob(d: string | null) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function DeactivateCell({ student }: { student: Student }) {
+  const [open, setOpen] = useState(false)
+  const qc = useQueryClient()
+
+  const deactivate = useMutation({
+    mutationFn: () => api.delete(`/students/${student.id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['students'] })
+      setOpen(false)
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        <button
+          title="View profile"
+          className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-[#4F46E5] dark:hover:bg-gray-700 transition-colors"
+          onClick={(e) => { e.stopPropagation(); window.location.href = `/students/${student.id}` }}
+        >
+          <Eye className="h-3.5 w-3.5" />
+        </button>
+        {student.isActive && (
+          <button
+            title="Deactivate"
+            className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 transition-colors"
+            onClick={(e) => { e.stopPropagation(); setOpen(true) }}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+      <DialogContent title="Deactivate student" description="This will mark the student as inactive. Records are preserved.">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Deactivate <strong>{student.firstName} {student.lastName}</strong>?
+        </p>
+        {deactivate.isError && (
+          <p className="mt-2 text-sm text-red-500">
+            {(deactivate.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Something went wrong.'}
+          </p>
+        )}
+        <div className="mt-5 flex justify-end gap-2">
+          <DialogClose asChild>
+            <Button type="button" variant="ghost" size="sm">Cancel</Button>
+          </DialogClose>
+          <Button
+            size="sm"
+            className="bg-red-600 hover:bg-red-700 text-white"
+            loading={deactivate.isPending}
+            onClick={() => deactivate.mutate()}
+          >
+            Deactivate
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 export function StudentTable() {
@@ -96,6 +156,11 @@ export function StudentTable() {
   }, [])
 
   const columns = [
+    col.display({
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => <DeactivateCell student={row.original} />,
+    }),
     col.accessor('admissionNo', {
       header: 'Admission No',
       cell: (info) => <span className="font-mono text-xs text-gray-500">{info.getValue()}</span>,
