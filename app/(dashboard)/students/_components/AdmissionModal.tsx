@@ -284,25 +284,40 @@ export function AdmissionModal() {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
+                autoFocus
                 placeholder="Search by name, phone, or relationship…"
                 value={guardianSearch}
-                onChange={(e) => setGuardianSearch(e.target.value)}
+                onChange={(e) => { setGuardianSearch(e.target.value); setExistingGuardianId('') }}
                 className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
               />
             </div>
 
-            <Select
-              label="Guardian *"
-              value={existingGuardianId}
-              onValueChange={setExistingGuardianId}
-              placeholder="Select guardian"
-            >
-              {filteredGuardians.map((g) => (
-                <SelectItem key={g.id} value={g.id}>
-                  {g.firstName} {g.lastName} · {g.relationship} · {g.phone}
-                </SelectItem>
-              ))}
-            </Select>
+            <div className="max-h-56 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
+              {filteredGuardians.length === 0 ? (
+                <p className="py-6 text-center text-sm text-gray-400">
+                  {allGuardians.length === 0 ? 'Loading…' : 'No guardians found'}
+                </p>
+              ) : (
+                filteredGuardians.map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => setExistingGuardianId(g.id)}
+                    className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-950 ${
+                      existingGuardianId === g.id
+                        ? 'bg-indigo-50 font-medium text-[#4F46E5] dark:bg-indigo-950 dark:text-indigo-300'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
+                    <span>
+                      {g.firstName} {g.lastName}
+                      <span className="ml-2 text-xs text-gray-400 capitalize">{g.relationship}</span>
+                    </span>
+                    <span className="text-xs text-gray-400">{g.phone}</span>
+                  </button>
+                ))
+              )}
+            </div>
 
             {existingGuardianId && (
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
