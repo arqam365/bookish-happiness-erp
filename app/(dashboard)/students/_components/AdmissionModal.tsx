@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectItem } from '@/components/ui/select'
+import { ImageUpload } from '@/components/ui/image-upload'
 import api from '@/lib/api'
 
 // ── schemas ──────────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ const newGuardianSchema = z.object({
 const studentSchema = z.object({
   admissionNo: z.string().min(1, 'Required'),
   firstName: z.string().min(1, 'Required'),
-  lastName: z.string().min(1, 'Required'),
+  lastName: z.string().optional(),
   dateOfBirth: z.string().optional(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
   religion: z.string().optional(),
@@ -72,6 +73,11 @@ export function AdmissionModal() {
 
   // student state
   const [studentData, setStudentData] = useState<StudentData | null>(null)
+
+  // document URLs (uploaded before submit)
+  const [photo, setPhoto] = useState('')
+  const [aadhaarFront, setAadhaarFront] = useState('')
+  const [aadhaarBack, setAadhaarBack] = useState('')
 
   const qc = useQueryClient()
 
@@ -126,7 +132,8 @@ export function AdmissionModal() {
 
       // 2. create student
       const studentPayload = Object.fromEntries(
-        Object.entries(studentData!).filter(([, v]) => v !== '' && v !== undefined),
+        Object.entries({ ...studentData!, ...(photo && { photo }), ...(aadhaarFront && { aadhaarFront }), ...(aadhaarBack && { aadhaarBack }) })
+          .filter(([, v]) => v !== '' && v !== undefined),
       )
       const student = await api.post('/students', studentPayload).then((r) => r.data)
 
@@ -154,6 +161,9 @@ export function AdmissionModal() {
     setGuardianSearch('')
     setNewGuardianData(null)
     setStudentData(null)
+    setPhoto('')
+    setAadhaarFront('')
+    setAadhaarBack('')
     guardianForm.reset()
     studentForm.reset()
     enrollmentForm.reset()
@@ -437,6 +447,12 @@ export function AdmissionModal() {
               {...studentForm.register('email')}
             />
             <Input label="Address" placeholder="Street address" {...studentForm.register('address')} />
+
+            <div className="grid grid-cols-3 gap-3 pt-1">
+              <ImageUpload label="Student photo" value={photo} onChange={setPhoto} folder="students/photos" />
+              <ImageUpload label="Aadhaar front" value={aadhaarFront} onChange={setAadhaarFront} folder="students/aadhaar" />
+              <ImageUpload label="Aadhaar back" value={aadhaarBack} onChange={setAadhaarBack} folder="students/aadhaar" />
+            </div>
 
             <div className="flex justify-between gap-2 pt-2">
               <Button type="button" variant="ghost" size="sm" onClick={() => setStep(2)}>

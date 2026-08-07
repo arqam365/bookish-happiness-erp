@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog'
 import { Select, SelectItem } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
+import { ImageUpload } from '@/components/ui/image-upload'
 import api from '@/lib/api'
 
 // ── types ────────────────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ interface Student {
   id: string
   admissionNo: string
   firstName: string
-  lastName: string
+  lastName: string | null
   gender: string | null
   dateOfBirth: string | null
   religion: string | null
@@ -56,6 +57,9 @@ interface Student {
   email: string | null
   address: string | null
   city: string | null
+  photo: string | null
+  aadhaarFront: string | null
+  aadhaarBack: string | null
   isActive: boolean
   enrollments: Enrollment[]
   guardians: Guardian[]
@@ -91,7 +95,7 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 const editSchema = z.object({
   admissionNo: z.string().min(1, 'Required'),
   firstName: z.string().min(1, 'Required'),
-  lastName: z.string().min(1, 'Required'),
+  lastName: z.string().optional(),
   dateOfBirth: z.string().optional(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
   religion: z.string().optional(),
@@ -101,6 +105,9 @@ const editSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   address: z.string().optional(),
   city: z.string().optional(),
+  photo: z.string().optional(),
+  aadhaarFront: z.string().optional(),
+  aadhaarBack: z.string().optional(),
 })
 type EditForm = z.infer<typeof editSchema>
 
@@ -113,7 +120,7 @@ function EditStudentModal({ student }: { student: Student }) {
     defaultValues: {
       admissionNo: student.admissionNo,
       firstName: student.firstName,
-      lastName: student.lastName,
+      lastName: student.lastName ?? '',
       dateOfBirth: student.dateOfBirth?.slice(0, 10) ?? '',
       gender: (student.gender as 'MALE' | 'FEMALE' | 'OTHER') ?? undefined,
       religion: student.religion ?? '',
@@ -123,6 +130,9 @@ function EditStudentModal({ student }: { student: Student }) {
       email: student.email ?? '',
       address: student.address ?? '',
       city: student.city ?? '',
+      photo: student.photo ?? '',
+      aadhaarFront: student.aadhaarFront ?? '',
+      aadhaarBack: student.aadhaarBack ?? '',
     },
   })
 
@@ -201,6 +211,12 @@ function EditStudentModal({ student }: { student: Student }) {
             {...form.register('email')}
           />
           <Input label="Address" {...form.register('address')} />
+
+          <div className="grid grid-cols-3 gap-3 pt-1">
+            <ImageUpload label="Student photo" value={form.watch('photo') ?? ''} onChange={(url) => form.setValue('photo', url)} />
+            <ImageUpload label="Aadhaar front" value={form.watch('aadhaarFront') ?? ''} onChange={(url) => form.setValue('aadhaarFront', url)} />
+            <ImageUpload label="Aadhaar back" value={form.watch('aadhaarBack') ?? ''} onChange={(url) => form.setValue('aadhaarBack', url)} />
+          </div>
 
           {update.isError && (
             <p className="text-sm text-red-500">{apiError(update.error)}</p>
@@ -376,9 +392,13 @@ export default function StudentProfilePage() {
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
-              {student.firstName[0]}{student.lastName[0]}
-            </div>
+            {student.photo ? (
+              <img src={student.photo} alt={`${student.firstName} ${student.lastName}`} className="h-14 w-14 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                {student.firstName[0]}{student.lastName?.[0] ?? ''}
+              </div>
+            )}
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                 {student.firstName} {student.lastName}
@@ -452,6 +472,32 @@ export default function StudentProfilePage() {
               </div>
             </div>
           </div>
+
+          {/* Aadhaar documents */}
+          {(student.aadhaarFront || student.aadhaarBack) && (
+            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900 md:col-span-2">
+              <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Aadhaar Card</h3>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {student.aadhaarFront && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Front</span>
+                    <a href={student.aadhaarFront} target="_blank" rel="noreferrer">
+                      <img src={student.aadhaarFront} alt="Aadhaar front" className="h-32 w-full rounded-lg border border-gray-200 object-cover dark:border-gray-700 hover:opacity-90 transition-opacity" />
+                    </a>
+                  </div>
+                )}
+                {student.aadhaarBack && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Back</span>
+                    <a href={student.aadhaarBack} target="_blank" rel="noreferrer">
+                      <img src={student.aadhaarBack} alt="Aadhaar back" className="h-32 w-full rounded-lg border border-gray-200 object-cover dark:border-gray-700 hover:opacity-90 transition-opacity" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         </TabsContent>
 
         {/* Enrollment tab */}

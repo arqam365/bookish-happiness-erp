@@ -27,7 +27,7 @@ interface Student {
   id: string
   admissionNo: string
   firstName: string
-  lastName: string
+  lastName: string | null
   gender: string | null
   phone: string | null
   dateOfBirth: string | null
