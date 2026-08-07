@@ -213,9 +213,9 @@ function EditStudentModal({ student }: { student: Student }) {
           <Input label="Address" {...form.register('address')} />
 
           <div className="grid grid-cols-3 gap-3 pt-1">
-            <ImageUpload label="Student photo" value={form.watch('photo') ?? ''} onChange={(url) => form.setValue('photo', url)} />
-            <ImageUpload label="Aadhaar front" value={form.watch('aadhaarFront') ?? ''} onChange={(url) => form.setValue('aadhaarFront', url)} />
-            <ImageUpload label="Aadhaar back" value={form.watch('aadhaarBack') ?? ''} onChange={(url) => form.setValue('aadhaarBack', url)} />
+            <ImageUpload label="Student photo" value={form.watch('photo') ?? ''} onChange={(url) => form.setValue('photo', url)} folder="students/photos" />
+            <ImageUpload label="Aadhaar front" value={form.watch('aadhaarFront') ?? ''} onChange={(url) => form.setValue('aadhaarFront', url)} folder="students/aadhaar" />
+            <ImageUpload label="Aadhaar back" value={form.watch('aadhaarBack') ?? ''} onChange={(url) => form.setValue('aadhaarBack', url)} folder="students/aadhaar" />
           </div>
 
           {update.isError && (
@@ -471,7 +471,6 @@ export default function StudentProfilePage() {
                 </div>
               </div>
             </div>
-          </div>
 
           {/* Aadhaar documents */}
           {(student.aadhaarFront || student.aadhaarBack) && (
@@ -497,7 +496,7 @@ export default function StudentProfilePage() {
               </div>
             </div>
           )}
-        </div>
+          </div>
         </TabsContent>
 
         {/* Enrollment tab */}
