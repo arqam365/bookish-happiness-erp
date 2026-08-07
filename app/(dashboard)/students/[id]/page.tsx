@@ -291,7 +291,7 @@ function LinkGuardianModal({ studentId }: { studentId: string }) {
 
   const { data: guardians = [] } = useQuery<GuardianListItem[]>({
     queryKey: ['guardians-all'],
-    queryFn: () => api.get('/guardians?limit=200').then((r) => r.data.data ?? r.data),
+    queryFn: () => api.get('/guardians?pageSize=200').then((r) => r.data.data ?? r.data),
     enabled: open,
   })
 

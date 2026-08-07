@@ -88,7 +88,7 @@ export function AdmissionModal() {
   // queries
   const { data: allGuardians = [] } = useQuery<GuardianListItem[]>({
     queryKey: ['guardians-all'],
-    queryFn: () => api.get('/guardians?limit=500').then((r) => r.data.data ?? r.data),
+    queryFn: () => api.get('/guardians?pageSize=500').then((r) => r.data.data ?? r.data),
     enabled: open && step === 2 && guardianMode === 'existing',
   })
 
@@ -109,9 +109,9 @@ export function AdmissionModal() {
     if (!q) return allGuardians
     return allGuardians.filter(
       (g) =>
-        `${g.firstName} ${g.lastName}`.toLowerCase().includes(q) ||
-        g.phone.includes(q) ||
-        g.relationship.toLowerCase().includes(q),
+        `${g.firstName ?? ''} ${g.lastName ?? ''}`.toLowerCase().includes(q) ||
+        (g.phone ?? '').includes(q) ||
+        (g.relationship ?? '').toLowerCase().includes(q),
     )
   }, [allGuardians, guardianSearch])
 
