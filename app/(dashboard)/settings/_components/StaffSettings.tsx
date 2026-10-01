@@ -114,7 +114,7 @@ function StaffFormDialog({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         title={employee ? 'Edit Staff Member' : 'Add Staff Member'}
-        description={employee ? `Editing ${employee.firstName} ${employee.lastName}` : 'Enter the new staff member's details.'}
+        description={employee ? `Editing ${employee.firstName} ${employee.lastName}` : 'Enter the new staff member details.'}
         className="max-w-2xl"
       >
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
