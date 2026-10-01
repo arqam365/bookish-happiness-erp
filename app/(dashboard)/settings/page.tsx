@@ -7,11 +7,13 @@ import { AcademicStructure } from './_components/AcademicStructure'
 import { RolesSettings } from './_components/RolesSettings'
 import { EmailSmsSettings } from './_components/EmailSmsSettings'
 import { StudentFields } from './_components/StudentFields'
+import { StaffSettings } from './_components/StaffSettings'
 import { cn } from '@/lib/utils'
 
 const TABS = [
   { id: 'general', label: 'General' },
   { id: 'academic', label: 'Academic Structure' },
+  { id: 'staff', label: 'Staff' },
   { id: 'roles', label: 'Roles & Permissions' },
   { id: 'email-sms', label: 'Email & SMS' },
   { id: 'student-fields', label: 'Student Fields' },
@@ -45,6 +47,7 @@ export default function SettingsPage() {
 
       {activeTab === 'general' && <GeneralSettings />}
       {activeTab === 'academic' && <AcademicStructure />}
+      {activeTab === 'staff' && <StaffSettings />}
       {activeTab === 'roles' && <RolesSettings />}
       {activeTab === 'email-sms' && <EmailSmsSettings />}
       {activeTab === 'student-fields' && <StudentFields />}
