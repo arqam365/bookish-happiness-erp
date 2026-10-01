@@ -21,10 +21,7 @@ const staffSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   emergencyContact: z.string().optional(),
-  salary: z.preprocess(
-    (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number().min(0).optional()
-  ),
+  salary: z.string().optional(),
   joinDate: z.string().min(1, 'Required'),
 })
 
@@ -85,7 +82,7 @@ function StaffFormDialog({
           department: employee.department ?? '',
           phone: employee.phone ?? '',
           email: employee.email ?? '',
-          salary: employee.salary ?? '',
+          salary: employee.salary != null ? String(employee.salary) : '',
           joinDate: employee.joinDate.slice(0, 10),
         }
       : {},
@@ -95,6 +92,7 @@ function StaffFormDialog({
     mutationFn: (data: StaffForm) => {
       const payload = {
         ...data,
+        salary: data.salary ? Number(data.salary) : undefined,
         email: data.email || undefined,
         department: data.department || undefined,
         emergencyContact: data.emergencyContact || undefined,
