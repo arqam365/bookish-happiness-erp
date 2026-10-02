@@ -49,7 +49,7 @@ export function DialogContent({ children, title, description, className }: Dialo
             <X className="h-4 w-4" />
           </RadixDialog.Close>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6">
+        <div className="flex-1 min-h-0 flex flex-col px-6 pb-6">
           {children}
         </div>
       </RadixDialog.Content>

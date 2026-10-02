@@ -223,383 +223,229 @@ export function AdmissionModal() {
         description={`Step ${step} of ${TOTAL_STEPS}`}
         className="max-w-xl"
       >
-        {/* Step indicator */}
-        <div className="mb-5 flex items-center gap-2">
+        {/* Step indicator — flex-shrink-0 so it never scrolls away */}
+        <div className="flex-shrink-0 mb-4 flex items-center gap-2">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center gap-2">
-              <div
-                className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
-                  s < step
-                    ? 'bg-emerald-500 text-white'
-                    : s === step
-                    ? 'bg-[#4F46E5] text-white'
-                    : 'bg-gray-100 text-gray-400 dark:bg-gray-700'
-                }`}
-              >
+              <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${s < step ? 'bg-emerald-500 text-white' : s === step ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-400 dark:bg-gray-700'}`}>
                 {s < step ? '✓' : s}
               </div>
-              {s < TOTAL_STEPS && (
-                <div className={`h-px w-10 ${s < step ? 'bg-emerald-400' : 'bg-gray-200 dark:bg-gray-700'}`} />
-              )}
+              {s < TOTAL_STEPS && <div className={`h-px w-10 ${s < step ? 'bg-emerald-400' : 'bg-gray-200 dark:bg-gray-700'}`} />}
             </div>
           ))}
         </div>
 
         {/* ── Step 1: Guardian check ── */}
         {step === 1 && (
-          <div className="space-y-5">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Is this student&apos;s guardian already registered in the system?
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => chooseMode('existing')}
-                className="flex flex-col items-center gap-3 rounded-xl border-2 border-gray-200 p-5 text-center transition-all hover:border-[#4F46E5] hover:bg-indigo-50 dark:border-gray-700 dark:hover:border-[#4F46E5] dark:hover:bg-indigo-950"
-              >
-                <UserCheck className="h-8 w-8 text-[#4F46E5]" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Yes, already added</p>
-                  <p className="mt-0.5 text-xs text-gray-500">Search and link by name or ID</p>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => chooseMode('new')}
-                className="flex flex-col items-center gap-3 rounded-xl border-2 border-gray-200 p-5 text-center transition-all hover:border-emerald-500 hover:bg-emerald-50 dark:border-gray-700 dark:hover:border-emerald-500 dark:hover:bg-emerald-950"
-              >
-                <UserCog className="h-8 w-8 text-emerald-600" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">No, add new guardian</p>
-                  <p className="mt-0.5 text-xs text-gray-500">Register guardian details now</p>
-                </div>
-              </button>
+          <>
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pb-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Is this student&apos;s guardian already registered in the system?
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => chooseMode('existing')} className="flex flex-col items-center gap-3 rounded-xl border-2 border-gray-200 p-5 text-center transition-all hover:border-[#4F46E5] hover:bg-indigo-50 dark:border-gray-700 dark:hover:border-[#4F46E5] dark:hover:bg-indigo-950">
+                  <UserCheck className="h-8 w-8 text-[#4F46E5]" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Yes, already added</p>
+                    <p className="mt-0.5 text-xs text-gray-500">Search and link by name or ID</p>
+                  </div>
+                </button>
+                <button type="button" onClick={() => chooseMode('new')} className="flex flex-col items-center gap-3 rounded-xl border-2 border-gray-200 p-5 text-center transition-all hover:border-emerald-500 hover:bg-emerald-50 dark:border-gray-700 dark:hover:border-emerald-500 dark:hover:bg-emerald-950">
+                  <UserCog className="h-8 w-8 text-emerald-600" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">No, add new guardian</p>
+                    <p className="mt-0.5 text-xs text-gray-500">Register guardian details now</p>
+                  </div>
+                </button>
+              </div>
             </div>
-            <div className="flex justify-end pt-1">
+            <div className="flex-shrink-0 flex justify-end pt-3">
               <DialogClose asChild>
                 <Button type="button" variant="ghost" size="sm">Cancel</Button>
               </DialogClose>
             </div>
-          </div>
+          </>
         )}
 
         {/* ── Step 2a: Search existing guardian ── */}
         {step === 2 && guardianMode === 'existing' && (
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                autoFocus
-                placeholder="Search by name, phone, or relationship…"
-                value={guardianSearch}
-                onChange={(e) => { setGuardianSearch(e.target.value); setExistingGuardianId('') }}
-                className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-              />
-            </div>
-
-            <div className="max-h-56 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
-              {filteredGuardians.length === 0 ? (
-                <p className="py-6 text-center text-sm text-gray-400">
-                  {allGuardians.length === 0 ? 'Loading…' : 'No guardians found'}
-                </p>
-              ) : (
-                filteredGuardians.map((g) => (
-                  <button
-                    key={g.id}
-                    type="button"
-                    onClick={() => setExistingGuardianId(g.id)}
-                    className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-950 ${
-                      existingGuardianId === g.id
-                        ? 'bg-indigo-50 font-medium text-[#4F46E5] dark:bg-indigo-950 dark:text-indigo-300'
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    <span>
-                      {g.firstName} {g.lastName}
-                      <span className="ml-2 text-xs text-gray-400 capitalize">{g.relationship}</span>
-                    </span>
-                    <span className="text-xs text-gray-400">{g.phone}</span>
-                  </button>
-                ))
+          <>
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input type="text" autoFocus placeholder="Search by name, phone, or relationship…" value={guardianSearch}
+                  onChange={(e) => { setGuardianSearch(e.target.value); setExistingGuardianId('') }}
+                  className="w-full rounded-md border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                />
+              </div>
+              <div className="max-h-56 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                {filteredGuardians.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-gray-400">{allGuardians.length === 0 ? 'Loading…' : 'No guardians found'}</p>
+                ) : (
+                  filteredGuardians.map((g) => (
+                    <button key={g.id} type="button" onClick={() => setExistingGuardianId(g.id)}
+                      className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-950 ${existingGuardianId === g.id ? 'bg-indigo-50 font-medium text-[#4F46E5] dark:bg-indigo-950 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      <span>{g.firstName} {g.lastName}<span className="ml-2 text-xs text-gray-400 capitalize">{g.relationship}</span></span>
+                      <span className="text-xs text-gray-400">{g.phone}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+              {existingGuardianId && (
+                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                  <input type="checkbox" checked={guardianIsPrimary} onChange={(e) => setGuardianIsPrimary(e.target.checked)} className="h-4 w-4 rounded border-gray-300" />
+                  Mark as primary guardian
+                </label>
               )}
             </div>
-
-            {existingGuardianId && (
-              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input
-                  type="checkbox"
-                  checked={guardianIsPrimary}
-                  onChange={(e) => setGuardianIsPrimary(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-                Mark as primary guardian
-              </label>
-            )}
-
-            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(1)}>
-                <ChevronLeft className="h-4 w-4" /> Back
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                disabled={!existingGuardianId}
-                onClick={handleExistingGuardianNext}
-              >
-                Next <ChevronRight className="h-4 w-4" />
-              </Button>
+            <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 pt-3">
+              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(1)}><ChevronLeft className="h-4 w-4" /> Back</Button>
+              <Button type="button" size="sm" disabled={!existingGuardianId} onClick={handleExistingGuardianNext}>Next <ChevronRight className="h-4 w-4" /></Button>
             </div>
-          </div>
+          </>
         )}
 
         {/* ── Step 2b: New guardian form ── */}
         {step === 2 && guardianMode === 'new' && (
-          <form onSubmit={guardianForm.handleSubmit(handleNewGuardian)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="First name *"
-                placeholder="First name"
-                error={guardianForm.formState.errors.firstName?.message}
-                {...guardianForm.register('firstName')}
-              />
-              <Input
-                label="Last name *"
-                placeholder="Last name"
-                error={guardianForm.formState.errors.lastName?.message}
-                {...guardianForm.register('lastName')}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Relationship *"
-                placeholder="Father / Mother / Uncle…"
-                error={guardianForm.formState.errors.relationship?.message}
-                {...guardianForm.register('relationship')}
-              />
-              <Input
-                label="Phone *"
-                placeholder="+91 98765 43210"
-                error={guardianForm.formState.errors.phone?.message}
-                {...guardianForm.register('phone')}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">WhatsApp number</label>
-                <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={whatsappSameAsPhone}
-                    onChange={(e) => {
-                      setWhatsappSameAsPhone(e.target.checked)
-                      if (e.target.checked) guardianForm.setValue('whatsappNumber', '')
-                    }}
-                    className="h-3.5 w-3.5 rounded border-gray-300"
-                  />
-                  Same as phone
-                </label>
+          <form onSubmit={guardianForm.handleSubmit(handleNewGuardian)} className="contents">
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="First name *" placeholder="First name" error={guardianForm.formState.errors.firstName?.message} {...guardianForm.register('firstName')} />
+                <Input label="Last name *" placeholder="Last name" error={guardianForm.formState.errors.lastName?.message} {...guardianForm.register('lastName')} />
               </div>
-              {!whatsappSameAsPhone && (
-                <Input
-                  placeholder="+91 98765 43210"
-                  {...guardianForm.register('whatsappNumber')}
-                />
-              )}
-              {whatsappSameAsPhone && (
-                <p className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:bg-gray-800">
-                  {guardianForm.watch('phone') || <span className="italic opacity-60">Will use phone number</span>}
-                </p>
-              )}
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Relationship *" placeholder="Father / Mother / Uncle…" error={guardianForm.formState.errors.relationship?.message} {...guardianForm.register('relationship')} />
+                <Input label="Phone *" placeholder="+91 98765 43210" error={guardianForm.formState.errors.phone?.message} {...guardianForm.register('phone')} />
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200">WhatsApp number</label>
+                  <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
+                    <input type="checkbox" checked={whatsappSameAsPhone} onChange={(e) => { setWhatsappSameAsPhone(e.target.checked); if (e.target.checked) guardianForm.setValue('whatsappNumber', '') }} className="h-3.5 w-3.5 rounded border-gray-300" />
+                    Same as phone
+                  </label>
+                </div>
+                {!whatsappSameAsPhone && <Input placeholder="+91 98765 43210" {...guardianForm.register('whatsappNumber')} />}
+                {whatsappSameAsPhone && (
+                  <p className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:bg-gray-800">
+                    {guardianForm.watch('phone') || <span className="italic opacity-60">Will use phone number</span>}
+                  </p>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Email" type="email" placeholder="email@example.com" {...guardianForm.register('email')} />
+                <Input label="Occupation" placeholder="Engineer / Farmer…" {...guardianForm.register('occupation')} />
+              </div>
+              <Input label="Address" placeholder="Full address" {...guardianForm.register('address')} />
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="checkbox" checked={guardianIsPrimary} onChange={(e) => setGuardianIsPrimary(e.target.checked)} className="h-4 w-4 rounded border-gray-300" />
+                Mark as primary guardian
+              </label>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Email" type="email" placeholder="email@example.com" {...guardianForm.register('email')} />
-              <Input label="Occupation" placeholder="Engineer / Farmer…" {...guardianForm.register('occupation')} />
-            </div>
-            <Input label="Address" placeholder="Full address" {...guardianForm.register('address')} />
-
-            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <input
-                type="checkbox"
-                checked={guardianIsPrimary}
-                onChange={(e) => setGuardianIsPrimary(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              Mark as primary guardian
-            </label>
-
-            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(1)}>
-                <ChevronLeft className="h-4 w-4" /> Back
-              </Button>
-              <Button type="submit" size="sm">
-                Next <ChevronRight className="h-4 w-4" />
-              </Button>
+            <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 pt-3">
+              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(1)}><ChevronLeft className="h-4 w-4" /> Back</Button>
+              <Button type="submit" size="sm">Next <ChevronRight className="h-4 w-4" /></Button>
             </div>
           </form>
         )}
 
         {/* ── Step 3: Student personal info ── */}
         {step === 3 && (
-          <form onSubmit={studentForm.handleSubmit(handleStudentInfo)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Admission no *"
-                placeholder="ADM-2025-001"
-                error={studentForm.formState.errors.admissionNo?.message}
-                {...studentForm.register('admissionNo')}
-              />
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Gender</label>
-                <Select
-                  value={studentForm.watch('gender') ?? ''}
-                  onValueChange={(v) => studentForm.setValue('gender', v as 'MALE' | 'FEMALE' | 'OTHER')}
-                  placeholder="Select"
-                >
-                  <SelectItem value="MALE">Male</SelectItem>
-                  <SelectItem value="FEMALE">Female</SelectItem>
-                  <SelectItem value="OTHER">Other</SelectItem>
-                </Select>
+          <form onSubmit={studentForm.handleSubmit(handleStudentInfo)} className="contents">
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Admission no *" placeholder="ADM-2025-001" error={studentForm.formState.errors.admissionNo?.message} {...studentForm.register('admissionNo')} />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Gender</label>
+                  <Select value={studentForm.watch('gender') ?? ''} onValueChange={(v) => studentForm.setValue('gender', v as 'MALE' | 'FEMALE' | 'OTHER')} placeholder="Select">
+                    <SelectItem value="MALE">Male</SelectItem>
+                    <SelectItem value="FEMALE">Female</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="First name *" placeholder="First name" error={studentForm.formState.errors.firstName?.message} {...studentForm.register('firstName')} />
+                <Input label="Last name *" placeholder="Last name" error={studentForm.formState.errors.lastName?.message} {...studentForm.register('lastName')} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Date of birth" type="date" {...studentForm.register('dateOfBirth')} />
+                <Input label="Phone" placeholder="+91 98765 43210" {...studentForm.register('phone')} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Religion" placeholder="Hindu / Muslim / Christian…" {...studentForm.register('religion')} />
+                <Input label="Nationality" {...studentForm.register('nationality')} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Blood group" placeholder="A+" {...studentForm.register('bloodGroup')} />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Ration card</label>
+                  <Select value={studentForm.watch('rationCard') ?? ''} onValueChange={(v) => studentForm.setValue('rationCard', v)} placeholder="Select type">
+                    <SelectItem value="APL">APL – Above Poverty Line</SelectItem>
+                    <SelectItem value="BPL">BPL – Below Poverty Line</SelectItem>
+                    <SelectItem value="AAY">AAY – Antyodaya Anna Yojana</SelectItem>
+                    <SelectItem value="PHH">PHH – Priority Household</SelectItem>
+                    <SelectItem value="NPHH">NPHH – Non-Priority Household</SelectItem>
+                    <SelectItem value="None">None / Not available</SelectItem>
+                  </Select>
+                </div>
+              </div>
+              <Input label="City" {...studentForm.register('city')} />
+              <Input label="Email" type="email" placeholder="student@email.com" error={studentForm.formState.errors.email?.message} {...studentForm.register('email')} />
+              <Input label="Address" placeholder="Street address" {...studentForm.register('address')} />
+              <div className="grid grid-cols-3 gap-3">
+                <ImageUpload label="Student photo" value={photo} onChange={setPhoto} folder="students/photos" />
+                <ImageUpload label="Aadhaar front" value={aadhaarFront} onChange={setAadhaarFront} folder="students/aadhaar" />
+                <ImageUpload label="Aadhaar back" value={aadhaarBack} onChange={setAadhaarBack} folder="students/aadhaar" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="First name *"
-                placeholder="First name"
-                error={studentForm.formState.errors.firstName?.message}
-                {...studentForm.register('firstName')}
-              />
-              <Input
-                label="Last name *"
-                placeholder="Last name"
-                error={studentForm.formState.errors.lastName?.message}
-                {...studentForm.register('lastName')}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Date of birth" type="date" {...studentForm.register('dateOfBirth')} />
-              <Input label="Phone" placeholder="+91 98765 43210" {...studentForm.register('phone')} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Religion" placeholder="Hindu / Muslim / Christian…" {...studentForm.register('religion')} />
-              <Input label="Nationality" {...studentForm.register('nationality')} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Blood group" placeholder="A+" {...studentForm.register('bloodGroup')} />
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Ration card</label>
-                <Select
-                  value={studentForm.watch('rationCard') ?? ''}
-                  onValueChange={(v) => studentForm.setValue('rationCard', v)}
-                  placeholder="Select type"
-                >
-                  <SelectItem value="APL">APL – Above Poverty Line</SelectItem>
-                  <SelectItem value="BPL">BPL – Below Poverty Line</SelectItem>
-                  <SelectItem value="AAY">AAY – Antyodaya Anna Yojana</SelectItem>
-                  <SelectItem value="PHH">PHH – Priority Household</SelectItem>
-                  <SelectItem value="NPHH">NPHH – Non-Priority Household</SelectItem>
-                  <SelectItem value="None">None / Not available</SelectItem>
-                </Select>
-              </div>
-            </div>
-            <Input label="City" {...studentForm.register('city')} />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="student@email.com"
-              error={studentForm.formState.errors.email?.message}
-              {...studentForm.register('email')}
-            />
-            <Input label="Address" placeholder="Street address" {...studentForm.register('address')} />
-
-            <div className="grid grid-cols-3 gap-3 pt-1">
-              <ImageUpload label="Student photo" value={photo} onChange={setPhoto} folder="students/photos" />
-              <ImageUpload label="Aadhaar front" value={aadhaarFront} onChange={setAadhaarFront} folder="students/aadhaar" />
-              <ImageUpload label="Aadhaar back" value={aadhaarBack} onChange={setAadhaarBack} folder="students/aadhaar" />
-            </div>
-
-            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(2)}>
-                <ChevronLeft className="h-4 w-4" /> Back
-              </Button>
-              <Button type="submit" size="sm">
-                Next <ChevronRight className="h-4 w-4" />
-              </Button>
+            <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 pt-3">
+              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(2)}><ChevronLeft className="h-4 w-4" /> Back</Button>
+              <Button type="submit" size="sm">Next <ChevronRight className="h-4 w-4" /></Button>
             </div>
           </form>
         )}
 
         {/* ── Step 4: Enrollment ── */}
         {step === 4 && (
-          <form onSubmit={enrollmentForm.handleSubmit(handleEnrollment)} className="space-y-4">
-            <Select
-              label="Academic year *"
-              value={enrollmentForm.watch('academicYearId')}
-              onValueChange={(v) => enrollmentForm.setValue('academicYearId', v)}
-              placeholder="Select year"
-              error={enrollmentForm.formState.errors.academicYearId?.message}
-            >
-              {years.map((y) => (
-                <SelectItem key={y.id} value={y.id}>
-                  {y.name}{y.isActive ? ' (Active)' : ''}
-                </SelectItem>
-              ))}
-            </Select>
-
-            <Select
-              label="Class *"
-              value={enrollmentForm.watch('classId')}
-              onValueChange={(v) => { enrollmentForm.setValue('classId', v); enrollmentForm.setValue('sectionId', '') }}
-              placeholder="Select class"
-              error={enrollmentForm.formState.errors.classId?.message}
-            >
-              {classes.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-              ))}
-            </Select>
-
-            {selectedClass && selectedClass.sections.length > 0 && (
-              <Select
-                label="Section"
-                value={enrollmentForm.watch('sectionId')}
-                onValueChange={(v) => enrollmentForm.setValue('sectionId', v)}
-                placeholder="Select section"
-              >
-                {selectedClass.sections.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                ))}
+          <form onSubmit={enrollmentForm.handleSubmit(handleEnrollment)} className="contents">
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+              <Select label="Academic year *" value={enrollmentForm.watch('academicYearId')} onValueChange={(v) => enrollmentForm.setValue('academicYearId', v)} placeholder="Select year" error={enrollmentForm.formState.errors.academicYearId?.message}>
+                {years.map((y) => <SelectItem key={y.id} value={y.id}>{y.name}{y.isActive ? ' (Active)' : ''}</SelectItem>)}
               </Select>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Roll number" placeholder="Optional" {...enrollmentForm.register('rollNumber')} />
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Category</label>
-                <Select value={category} onValueChange={setCategory} placeholder="Select category">
-                  <SelectItem value="General">General</SelectItem>
-                  <SelectItem value="OBC">OBC</SelectItem>
-                  <SelectItem value="SC">SC</SelectItem>
-                  <SelectItem value="ST">ST</SelectItem>
-                  <SelectItem value="EWS">EWS</SelectItem>
-                  <SelectItem value="NRI">NRI</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+              <Select label="Class *" value={enrollmentForm.watch('classId')} onValueChange={(v) => { enrollmentForm.setValue('classId', v); enrollmentForm.setValue('sectionId', '') }} placeholder="Select class" error={enrollmentForm.formState.errors.classId?.message}>
+                {classes.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+              </Select>
+              {selectedClass && selectedClass.sections.length > 0 && (
+                <Select label="Section" value={enrollmentForm.watch('sectionId')} onValueChange={(v) => enrollmentForm.setValue('sectionId', v)} placeholder="Select section">
+                  {selectedClass.sections.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </Select>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Roll number" placeholder="Optional" {...enrollmentForm.register('rollNumber')} />
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Category</label>
+                  <Select value={category} onValueChange={setCategory} placeholder="Select category">
+                    <SelectItem value="General">General</SelectItem>
+                    <SelectItem value="OBC">OBC</SelectItem>
+                    <SelectItem value="SC">SC</SelectItem>
+                    <SelectItem value="ST">ST</SelectItem>
+                    <SelectItem value="EWS">EWS</SelectItem>
+                    <SelectItem value="NRI">NRI</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </Select>
+                </div>
               </div>
+              {admit.isError && (
+                <p className="text-sm text-red-500">
+                  {(admit.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Something went wrong. Please try again.'}
+                </p>
+              )}
             </div>
-
-            {admit.isError && (
-              <p className="text-sm text-red-500">
-                {(admit.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Something went wrong. Please try again.'}
-              </p>
-            )}
-
-            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(3)}>
-                <ChevronLeft className="h-4 w-4" /> Back
-              </Button>
-              <Button type="submit" size="sm" loading={admit.isPending}>
-                Admit student
-              </Button>
+            <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 pt-3">
+              <Button type="button" variant="ghost" size="sm" onClick={() => setStep(3)}><ChevronLeft className="h-4 w-4" /> Back</Button>
+              <Button type="submit" size="sm" loading={admit.isPending}>Admit student</Button>
             </div>
           </form>
         )}
