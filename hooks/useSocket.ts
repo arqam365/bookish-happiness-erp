@@ -17,6 +17,8 @@ export function useAttendanceSocket(onUpdate: (data: { date: string; sectionId: 
     const socket: Socket = io(`${WS_URL}/attendance`, {
       auth: { token },
       transports: ['websocket'],
+      reconnectionAttempts: 3,
+      reconnectionDelay: 2000,
     })
 
     socket.on('attendance:updated', (data) => cbRef.current(data))
@@ -35,6 +37,8 @@ export function useNotificationSocket(onNotification: (n: { id: string; title: s
     const socket: Socket = io(`${WS_URL}/notifications`, {
       auth: { token },
       transports: ['websocket'],
+      reconnectionAttempts: 3,
+      reconnectionDelay: 2000,
     })
 
     socket.on('notification:new', (data) => cbRef.current(data))
