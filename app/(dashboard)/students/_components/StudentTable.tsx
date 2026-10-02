@@ -31,6 +31,7 @@ interface Student {
   gender: string | null
   phone: string | null
   dateOfBirth: string | null
+  category: string | null
   isActive: boolean
   enrollments: Enrollment[]
 }
@@ -187,6 +188,14 @@ export function StudentTable() {
             {enr.class.name}{enr.section ? ` · ${enr.section.name}` : ''}
           </span>
         )
+      },
+    }),
+    col.accessor('category', {
+      header: 'Category',
+      cell: (info) => {
+        const v = info.getValue()
+        if (!v) return <span className="text-gray-400">—</span>
+        return <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">{v}</span>
       },
     }),
     col.accessor('gender', {
