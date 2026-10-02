@@ -193,7 +193,11 @@ export function StudentTable() {
     }),
     col.accessor('rationCard', {
       header: 'Ration card',
-      cell: (info) => <span className="font-mono text-xs text-gray-600 dark:text-gray-300">{info.getValue() ?? '—'}</span>,
+      cell: (info) => {
+        const v = info.getValue()
+        if (!v || v === 'None') return <span className="text-gray-400">—</span>
+        return <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">{v}</span>
+      },
     }),
     col.accessor('category', {
       header: 'Category',

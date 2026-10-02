@@ -451,13 +451,27 @@ export function AdmissionModal() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input label="Religion" placeholder="Hindu / Muslim / Christian…" {...studentForm.register('religion')} />
-              <Input label="Blood group" placeholder="A+" {...studentForm.register('bloodGroup')} />
+              <Input label="Nationality" {...studentForm.register('nationality')} />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Nationality" {...studentForm.register('nationality')} />
-              <Input label="City" {...studentForm.register('city')} />
+              <Input label="Blood group" placeholder="A+" {...studentForm.register('bloodGroup')} />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Ration card</label>
+                <Select
+                  value={studentForm.watch('rationCard') ?? ''}
+                  onValueChange={(v) => studentForm.setValue('rationCard', v)}
+                  placeholder="Select type"
+                >
+                  <SelectItem value="APL">APL – Above Poverty Line</SelectItem>
+                  <SelectItem value="BPL">BPL – Below Poverty Line</SelectItem>
+                  <SelectItem value="AAY">AAY – Antyodaya Anna Yojana</SelectItem>
+                  <SelectItem value="PHH">PHH – Priority Household</SelectItem>
+                  <SelectItem value="NPHH">NPHH – Non-Priority Household</SelectItem>
+                  <SelectItem value="None">None / Not available</SelectItem>
+                </Select>
+              </div>
             </div>
-            <Input label="Ration card no" placeholder="RC-1234567890" {...studentForm.register('rationCard')} />
+            <Input label="City" {...studentForm.register('city')} />
             <Input
               label="Email"
               type="email"
