@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client'
 import { useAuthStore } from '@/store/auth.store'
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:4001'
+const WS_ENABLED = WS_URL.startsWith('http://') // Vercel (https://) has no WS server
 
 export function useAttendanceSocket(onUpdate: (data: { date: string; sectionId: string; count: number }) => void) {
   const token = useAuthStore((s) => s.accessToken)
@@ -12,7 +13,7 @@ export function useAttendanceSocket(onUpdate: (data: { date: string; sectionId: 
   cbRef.current = onUpdate
 
   useEffect(() => {
-    if (!token) return
+    if (!token || !WS_ENABLED) return
 
     const socket: Socket = io(`${WS_URL}/attendance`, {
       auth: { token },
@@ -32,7 +33,7 @@ export function useNotificationSocket(onNotification: (n: { id: string; title: s
   cbRef.current = onNotification
 
   useEffect(() => {
-    if (!token) return
+    if (!token || !WS_ENABLED) return
 
     const socket: Socket = io(`${WS_URL}/notifications`, {
       auth: { token },
