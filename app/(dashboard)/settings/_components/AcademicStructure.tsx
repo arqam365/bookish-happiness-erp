@@ -47,7 +47,7 @@ function formatDate(d: string) {
 
 function IconBtn({ onClick, loading, className, children }: { onClick: () => void; loading?: boolean; className?: string; children: React.ReactNode }) {
   return (
-    <Button size="sm" variant="ghost" className={`h-7 w-7 p-0 ${className ?? ''}`} loading={loading} onClick={onClick}>
+    <Button size="sm" variant="ghost" className={`h-8 w-8 p-0 ${className ?? ''}`} loading={loading} onClick={onClick}>
       {children}
     </Button>
   )
@@ -164,10 +164,10 @@ function AcademicYears() {
                     )}
                     {year.isActive && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
                     <IconBtn className="text-gray-400 hover:text-gray-700" onClick={() => startEdit(year)}>
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     </IconBtn>
                     <IconBtn className="text-gray-400 hover:text-red-600" loading={deleteYear.isPending} onClick={() => deleteYear.mutate(year.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </IconBtn>
                   </div>
                 </div>
@@ -313,10 +313,10 @@ function ClassesAndSections() {
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       <span className="text-xs text-gray-400">{cls.sections.length} section{cls.sections.length !== 1 ? 's' : ''}</span>
                       <IconBtn className="text-gray-400 hover:text-gray-700" onClick={() => startEditClass(cls)}>
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil className="h-4 w-4" />
                       </IconBtn>
                       <IconBtn className="text-gray-400 hover:text-red-600" loading={deleteClass.isPending} onClick={() => deleteClass.mutate(cls.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       </IconBtn>
                     </div>
                   </button>
@@ -346,19 +346,19 @@ function ClassesAndSections() {
                               <Button size="sm" variant="ghost" onClick={() => setEditingSectionId(null)} className="mb-[1px]">Cancel</Button>
                             </div>
                           ) : (
-                            <span className="group inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                            <span className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
                               {s.name}{s.capacity ? ` (${s.capacity})` : ''}
                               <button
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400 hover:text-indigo-700"
+                                className="text-indigo-400 hover:text-indigo-700"
                                 onClick={() => startEditSection(s)}
                               >
-                                <Pencil className="h-2.5 w-2.5" />
+                                <Pencil className="h-3 w-3" />
                               </button>
                               <button
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400 hover:text-red-600"
+                                className="text-indigo-400 hover:text-red-600"
                                 onClick={() => deleteSection.mutate(s.id)}
                               >
-                                <Trash2 className="h-2.5 w-2.5" />
+                                <Trash2 className="h-3 w-3" />
                               </button>
                             </span>
                           )}
@@ -495,10 +495,10 @@ function Subjects() {
                   </div>
                   <div className="flex items-center gap-1">
                     <IconBtn className="text-gray-400 hover:text-gray-700" onClick={() => startEdit(s)}>
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     </IconBtn>
                     <IconBtn className="text-gray-400 hover:text-red-600" loading={deleteSubject.isPending} onClick={() => deleteSubject.mutate(s.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </IconBtn>
                   </div>
                 </div>
@@ -606,10 +606,10 @@ function Courses() {
                   </div>
                   <div className="flex items-center gap-1">
                     <IconBtn className="text-gray-400 hover:text-gray-700" onClick={() => startEdit(c)}>
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     </IconBtn>
                     <IconBtn className="text-gray-400 hover:text-red-600" loading={remove.isPending} onClick={() => remove.mutate(c.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </IconBtn>
                   </div>
                 </div>
@@ -708,10 +708,10 @@ function Batches() {
                   </div>
                   <div className="flex items-center gap-1">
                     <IconBtn className="text-gray-400 hover:text-gray-700" onClick={() => startEdit(b)}>
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     </IconBtn>
                     <IconBtn className="text-gray-400 hover:text-red-600" loading={remove.isPending} onClick={() => remove.mutate(b.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
                     </IconBtn>
                   </div>
                 </div>
