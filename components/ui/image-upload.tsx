@@ -21,15 +21,12 @@ export function ImageUpload({ label, value, onChange, accept = 'image/*', folder
     setError(null)
     setUploading(true)
     try {
-      const { data } = await api.get<{ uploadUrl: string; publicUrl: string }>('/upload/presign', {
+      const buffer = await file.arrayBuffer()
+      const { data } = await api.post<{ url: string }>('/upload', buffer, {
         params: { filename: file.name, contentType: file.type, folder },
-      })
-      await fetch(data.uploadUrl, {
-        method: 'PUT',
-        body: file,
         headers: { 'Content-Type': file.type },
       })
-      onChange(data.publicUrl)
+      onChange(data.url)
     } catch (err) {
       const e = err as { response?: { data?: { message?: string } } }
       setError(e?.response?.data?.message ?? 'Upload failed')
