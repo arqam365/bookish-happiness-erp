@@ -20,6 +20,7 @@ const newGuardianSchema = z.object({
   lastName: z.string().min(1, 'Required'),
   relationship: z.string().min(1, 'Required'),
   phone: z.string().min(1, 'Required'),
+  whatsappNumber: z.string().optional(),
   email: z.string().optional(),
   occupation: z.string().optional(),
   address: z.string().optional(),
@@ -71,6 +72,7 @@ export function AdmissionModal() {
   const [guardianIsPrimary, setGuardianIsPrimary] = useState(true)
   const [guardianSearch, setGuardianSearch] = useState('')
   const [newGuardianData, setNewGuardianData] = useState<NewGuardianData | null>(null)
+  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true)
 
   // student state
   const [studentData, setStudentData] = useState<StudentData | null>(null)
@@ -162,6 +164,7 @@ export function AdmissionModal() {
     setGuardianIsPrimary(true)
     setGuardianSearch('')
     setNewGuardianData(null)
+    setWhatsappSameAsPhone(true)
     setStudentData(null)
     setPhoto('')
     setAadhaarFront('')
@@ -183,7 +186,7 @@ export function AdmissionModal() {
   }
 
   function handleNewGuardian(data: NewGuardianData) {
-    setNewGuardianData(data)
+    setNewGuardianData({ ...data, whatsappNumber: whatsappSameAsPhone ? data.phone : data.whatsappNumber })
     setStep(3)
   }
 
@@ -380,6 +383,34 @@ export function AdmissionModal() {
                 error={guardianForm.formState.errors.phone?.message}
                 {...guardianForm.register('phone')}
               />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">WhatsApp number</label>
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={whatsappSameAsPhone}
+                    onChange={(e) => {
+                      setWhatsappSameAsPhone(e.target.checked)
+                      if (e.target.checked) guardianForm.setValue('whatsappNumber', '')
+                    }}
+                    className="h-3.5 w-3.5 rounded border-gray-300"
+                  />
+                  Same as phone
+                </label>
+              </div>
+              {!whatsappSameAsPhone && (
+                <Input
+                  placeholder="+91 98765 43210"
+                  {...guardianForm.register('whatsappNumber')}
+                />
+              )}
+              {whatsappSameAsPhone && (
+                <p className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:bg-gray-800">
+                  {guardianForm.watch('phone') || <span className="italic opacity-60">Will use phone number</span>}
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input label="Email" type="email" placeholder="email@example.com" {...guardianForm.register('email')} />
