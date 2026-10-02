@@ -78,6 +78,7 @@ export function AdmissionModal() {
   const [photo, setPhoto] = useState('')
   const [aadhaarFront, setAadhaarFront] = useState('')
   const [aadhaarBack, setAadhaarBack] = useState('')
+  const [category, setCategory] = useState('')
 
   const qc = useQueryClient()
 
@@ -132,7 +133,7 @@ export function AdmissionModal() {
 
       // 2. create student
       const studentPayload = Object.fromEntries(
-        Object.entries({ ...studentData!, ...(photo && { photo }), ...(aadhaarFront && { aadhaarFront }), ...(aadhaarBack && { aadhaarBack }) })
+        Object.entries({ ...studentData!, ...(photo && { photo }), ...(aadhaarFront && { aadhaarFront }), ...(aadhaarBack && { aadhaarBack }), ...(category && { category }) })
           .filter(([, v]) => v !== '' && v !== undefined),
       )
       const student = await api.post('/students', studentPayload).then((r) => r.data)
@@ -164,6 +165,7 @@ export function AdmissionModal() {
     setPhoto('')
     setAadhaarFront('')
     setAadhaarBack('')
+    setCategory('')
     guardianForm.reset()
     studentForm.reset()
     enrollmentForm.reset()
@@ -522,7 +524,21 @@ export function AdmissionModal() {
               </Select>
             )}
 
-            <Input label="Roll number" placeholder="Optional" {...enrollmentForm.register('rollNumber')} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Roll number" placeholder="Optional" {...enrollmentForm.register('rollNumber')} />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Category</label>
+                <Select value={category} onValueChange={setCategory} placeholder="Select category">
+                  <SelectItem value="General">General</SelectItem>
+                  <SelectItem value="OBC">OBC</SelectItem>
+                  <SelectItem value="SC">SC</SelectItem>
+                  <SelectItem value="ST">ST</SelectItem>
+                  <SelectItem value="EWS">EWS</SelectItem>
+                  <SelectItem value="NRI">NRI</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </Select>
+              </div>
+            </div>
 
             {admit.isError && (
               <p className="text-sm text-red-500">
