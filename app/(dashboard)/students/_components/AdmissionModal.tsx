@@ -337,7 +337,7 @@ export function AdmissionModal() {
               </label>
             )}
 
-            <div className="flex justify-between gap-2 pt-2">
+            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
               <Button type="button" variant="ghost" size="sm" onClick={() => setStep(1)}>
                 <ChevronLeft className="h-4 w-4" /> Back
               </Button>
@@ -428,7 +428,7 @@ export function AdmissionModal() {
               Mark as primary guardian
             </label>
 
-            <div className="flex justify-between gap-2 pt-2">
+            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
               <Button type="button" variant="ghost" size="sm" onClick={() => setStep(1)}>
                 <ChevronLeft className="h-4 w-4" /> Back
               </Button>
@@ -518,7 +518,7 @@ export function AdmissionModal() {
               <ImageUpload label="Aadhaar back" value={aadhaarBack} onChange={setAadhaarBack} folder="students/aadhaar" />
             </div>
 
-            <div className="flex justify-between gap-2 pt-2">
+            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
               <Button type="button" variant="ghost" size="sm" onClick={() => setStep(2)}>
                 <ChevronLeft className="h-4 w-4" /> Back
               </Button>
@@ -593,7 +593,7 @@ export function AdmissionModal() {
               </p>
             )}
 
-            <div className="flex justify-between gap-2 pt-2">
+            <div className="sticky bottom-0 -mx-6 px-6 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between gap-2 py-3 mt-4">
               <Button type="button" variant="ghost" size="sm" onClick={() => setStep(3)}>
                 <ChevronLeft className="h-4 w-4" /> Back
               </Button>
