@@ -21,10 +21,16 @@ export function ImageUpload({ label, value, onChange, accept = 'image/*', folder
     setError(null)
     setUploading(true)
     try {
-      const buffer = await file.arrayBuffer()
-      const { data } = await api.post<{ url: string }>('/upload', buffer, {
-        params: { filename: file.name, contentType: file.type, folder },
-        headers: { 'Content-Type': file.type },
+      const ab = await file.arrayBuffer()
+      const bytes = new Uint8Array(ab)
+      let binary = ''
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
+      const base64 = btoa(binary)
+      const { data } = await api.post<{ url: string }>('/upload', {
+        data: base64,
+        filename: file.name,
+        contentType: file.type,
+        folder,
       })
       onChange(data.url)
     } catch (err) {
