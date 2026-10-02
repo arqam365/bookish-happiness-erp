@@ -32,6 +32,7 @@ interface Student {
   phone: string | null
   dateOfBirth: string | null
   category: string | null
+  rationCard: string | null
   isActive: boolean
   enrollments: Enrollment[]
 }
@@ -189,6 +190,10 @@ export function StudentTable() {
           </span>
         )
       },
+    }),
+    col.accessor('rationCard', {
+      header: 'Ration card',
+      cell: (info) => <span className="font-mono text-xs text-gray-600 dark:text-gray-300">{info.getValue() ?? '—'}</span>,
     }),
     col.accessor('category', {
       header: 'Category',

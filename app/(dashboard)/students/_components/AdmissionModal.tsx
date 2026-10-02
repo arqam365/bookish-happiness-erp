@@ -38,6 +38,7 @@ const studentSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   address: z.string().optional(),
   city: z.string().optional(),
+  rationCard: z.string().optional(),
 })
 
 const enrollmentSchema = z.object({
@@ -456,6 +457,7 @@ export function AdmissionModal() {
               <Input label="Nationality" {...studentForm.register('nationality')} />
               <Input label="City" {...studentForm.register('city')} />
             </div>
+            <Input label="Ration card no" placeholder="RC-1234567890" {...studentForm.register('rationCard')} />
             <Input
               label="Email"
               type="email"
