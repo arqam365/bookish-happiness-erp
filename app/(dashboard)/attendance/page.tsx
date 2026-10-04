@@ -175,6 +175,7 @@ export default function AttendancePage() {
                 <input
                   type="date"
                   value={selectedDate}
+                  min={dayjs().subtract(7, 'day').format('YYYY-MM-DD')}
                   max={today}
                   onChange={(e) => { setSelectedDate(e.target.value); setMarkMap({}) }}
                   className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
