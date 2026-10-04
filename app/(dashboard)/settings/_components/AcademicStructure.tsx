@@ -111,7 +111,7 @@ function AcademicYears() {
       </CardHeader>
 
       {showForm && (
-        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Input label="Year name" placeholder="2024–2025" value={name} onChange={(e) => setName(e.target.value)} />
             <Input label="Start date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -128,7 +128,7 @@ function AcademicYears() {
 
       {isLoading ? (
         <div className="space-y-2">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />)}
         </div>
       ) : years.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No academic years yet. Add one to get started.</p>
@@ -264,7 +264,7 @@ function ClassesAndSections() {
       </CardHeader>
 
       {showClassForm && (
-        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
           <div className="grid grid-cols-2 gap-3">
             <Input label="Class name" placeholder="Grade 1 / Class 6" value={className} onChange={(e) => setClassName(e.target.value)} />
             <Input label="Code (optional)" placeholder="G1" value={classCode} onChange={(e) => setClassCode(e.target.value)} />
@@ -278,7 +278,7 @@ function ClassesAndSections() {
 
       {isLoading ? (
         <div className="space-y-2">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />)}
         </div>
       ) : classes.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No classes yet. Add your first class.</p>
@@ -328,7 +328,7 @@ function ClassesAndSections() {
                       {cls.sections.map((s) => (
                         <div key={s.id}>
                           {editingSectionId === s.id ? (
-                            <div className="flex items-end gap-2 rounded-lg border border-indigo-100 bg-indigo-50 p-2">
+                            <div className="flex items-end gap-2 rounded-lg border border-indigo-100 bg-indigo-50 p-2 dark:border-indigo-800 dark:bg-indigo-950/30">
                               <Input
                                 label="Name"
                                 className="max-w-[120px]"
@@ -454,7 +454,7 @@ function Subjects() {
       </CardHeader>
 
       {showForm && (
-        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
           <div className="grid grid-cols-2 gap-3">
             <Input label="Subject name" placeholder="Mathematics" value={name} onChange={(e) => setName(e.target.value)} />
             <Input label="Code (optional)" placeholder="MATH" value={code} onChange={(e) => setCode(e.target.value)} />
@@ -468,7 +468,7 @@ function Subjects() {
 
       {isLoading ? (
         <div className="space-y-2">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-100" />)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />)}
         </div>
       ) : subjects.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No subjects yet.</p>
@@ -563,7 +563,7 @@ function Courses() {
       </CardHeader>
 
       {showForm && (
-        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 space-y-3">
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 space-y-3 dark:border-indigo-800 dark:bg-indigo-950/30">
           <div className="grid grid-cols-2 gap-3">
             <Input label="Course name" placeholder="Science / Alimiyat" value={name} onChange={(e) => setName(e.target.value)} />
             <Input label="Code (optional)" placeholder="SCI" value={code} onChange={(e) => setCode(e.target.value)} />
@@ -577,7 +577,7 @@ function Courses() {
       )}
 
       {isLoading ? (
-        <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />)}</div>
+        <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />)}</div>
       ) : courses.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No courses yet. Add your first program.</p>
       ) : (
@@ -673,7 +673,7 @@ function Batches() {
       </CardHeader>
 
       {showForm && (
-        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 space-y-3">
+        <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4 space-y-3 dark:border-indigo-800 dark:bg-indigo-950/30">
           <Input label="Batch name" placeholder="2024 Batch / Morning Batch" value={name} onChange={(e) => setName(e.target.value)} />
           <Input label="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
           <div className="flex gap-2">
@@ -684,7 +684,7 @@ function Batches() {
       )}
 
       {isLoading ? (
-        <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-100" />)}</div>
+        <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />)}</div>
       ) : batches.length === 0 ? (
         <p className="py-6 text-center text-sm text-gray-400">No batches yet.</p>
       ) : (

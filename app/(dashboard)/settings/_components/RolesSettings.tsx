@@ -106,7 +106,7 @@ export function RolesSettings() {
         </CardHeader>
 
         {showForm && (
-          <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 p-5">
+          <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 p-5 dark:border-indigo-800 dark:bg-indigo-950/30">
             <h4 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Create new role</h4>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 mb-4">
               <Input
@@ -123,8 +123,8 @@ export function RolesSettings() {
               />
             </div>
 
-            <p className="mb-3 text-sm font-medium text-gray-700">Select permissions</p>
-            <div className="space-y-3 max-h-72 overflow-y-auto rounded-lg border border-indigo-200 bg-white p-3">
+            <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Select permissions</p>
+            <div className="space-y-3 max-h-72 overflow-y-auto rounded-lg border border-indigo-200 bg-white p-3 dark:border-indigo-800 dark:bg-gray-900">
               {Object.entries(grouped).map(([module, perms]) => {
                 const ids = perms.map((p) => p.id)
                 const allSelected = ids.every((id) => selectedPermIds.includes(id))
@@ -141,7 +141,7 @@ export function RolesSettings() {
                         onChange={() => toggleModule(module)}
                         className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
-                      <span className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
                         {module}
                       </span>
                     </label>
@@ -154,7 +154,7 @@ export function RolesSettings() {
                             onChange={() => togglePerm(p.id)}
                             className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-600">{p.action}</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">{p.action}</span>
                         </label>
                       ))}
                     </div>
@@ -182,7 +182,7 @@ export function RolesSettings() {
         {rolesLoading ? (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-lg bg-gray-100" />
+              <div key={i} className="h-14 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />
             ))}
           </div>
         ) : roles.length === 0 ? (
