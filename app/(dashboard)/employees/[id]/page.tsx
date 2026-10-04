@@ -52,6 +52,8 @@ interface Employee {
   email: string | null
   emergencyContact: string | null
   salary: number | null
+  address: string | null
+  teacherIdNo: string | null
   joinDate: string
   isActive: boolean
   status: EmployeeStatus
@@ -86,6 +88,8 @@ function EditOverviewForm({ employee, onDone }: { employee: Employee; onDone: ()
     email: employee.email ?? '',
     emergencyContact: employee.emergencyContact ?? '',
     salary: employee.salary != null ? String(employee.salary) : '',
+    teacherIdNo: employee.teacherIdNo ?? '',
+    address: employee.address ?? '',
   })
 
   const save = useMutation({
@@ -125,6 +129,10 @@ function EditOverviewForm({ employee, onDone }: { employee: Employee; onDone: ()
       <div className="grid grid-cols-2 gap-3">
         {field('salary', 'Salary', 'number')}
         {field('emergencyContact', 'Emergency contact')}
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {field('teacherIdNo', 'Teacher ID No.')}
+        {field('address', 'Address')}
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="ghost" size="sm" onClick={onDone}><X className="h-4 w-4" />Cancel</Button>
@@ -454,6 +462,9 @@ export default function EmployeeProfilePage() {
                   <DetailRow label="Employee ID" value={<span className="font-mono text-xs">{employee.employeeId}</span>} />
                   <DetailRow label="Join date" value={dayjs(employee.joinDate).format('D MMM YYYY')} />
                   <DetailRow label="Status" value={<Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>} />
+                  {employee.teacherIdNo && (
+                    <DetailRow label="Teacher ID No." value={<span className="font-mono text-xs">{employee.teacherIdNo}</span>} />
+                  )}
                   {employee.salary != null && (
                     <DetailRow label="Salary" value={
                       <span className="flex items-center gap-1">
@@ -475,6 +486,15 @@ export default function EmployeeProfilePage() {
                     <Mail className="h-4 w-4 shrink-0 text-gray-400" />
                     {employee.email ?? <span className="text-gray-400">—</span>}
                   </div>
+                  {employee.address && (
+                    <div className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
+                      <Mail className="h-4 w-4 shrink-0 mt-0.5 text-gray-400" />
+                      <div>
+                        <p className="text-xs text-gray-400 mb-0.5">Address</p>
+                        {employee.address}
+                      </div>
+                    </div>
+                  )}
                   {employee.emergencyContact && (
                     <div className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
                       <UserCheck className="h-4 w-4 shrink-0 mt-0.5 text-gray-400" />

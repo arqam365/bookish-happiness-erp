@@ -22,6 +22,8 @@ const staffSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   emergencyContact: z.string().optional(),
   salary: z.string().optional(),
+  teacherIdNo: z.string().optional(),
+  address: z.string().optional(),
   joinDate: z.string().min(1, 'Required'),
 })
 
@@ -165,6 +167,16 @@ function StaffFormDialog({
               min={0}
               placeholder="30000"
               {...register('salary')}
+            />
+            <Input
+              label="Teacher ID No."
+              placeholder="Govt. registration no."
+              {...register('teacherIdNo')}
+            />
+            <Input
+              label="Address"
+              placeholder="Street, city"
+              {...register('address')}
             />
             <Input
               label="Join date"

@@ -47,6 +47,8 @@ const employeeSchema = z.object({
   joinDate: z.string().min(1, 'Required'),
   emergencyContact: z.string().optional(),
   salary: z.coerce.number().optional(),
+  teacherIdNo: z.string().optional(),
+  address: z.string().optional(),
 })
 type EmployeeForm = z.infer<typeof employeeSchema>
 
@@ -85,6 +87,10 @@ function AddEmployeeModal() {
             <Input label="Salary (optional)" type="number" min="0" {...form.register('salary')} />
           </div>
           <Input label="Emergency contact" placeholder="Name + phone" {...form.register('emergencyContact')} />
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Teacher ID No." placeholder="Govt. registration no." {...form.register('teacherIdNo')} />
+            <Input label="Address" placeholder="Street, city" {...form.register('address')} />
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
             <Button type="submit" size="sm" loading={create.isPending}>Save employee</Button>
