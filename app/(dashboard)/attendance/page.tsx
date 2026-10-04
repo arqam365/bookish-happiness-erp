@@ -100,7 +100,7 @@ export default function AttendancePage() {
     if (!existingAttendance) return
     const map: Record<string, AttendanceStatus> = {}
     existingAttendance.forEach((r) => { map[r.studentId] = r.status })
-    if (Object.keys(map).length > 0) setMarkMap(map)
+    setMarkMap(map)
   }, [existingAttendance])
 
   const { data: percentReport = [], isLoading: pctLoading } = useQuery<PercentRow[]>({
@@ -176,7 +176,7 @@ export default function AttendancePage() {
                   type="date"
                   value={selectedDate}
                   max={today}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  onChange={(e) => { setSelectedDate(e.target.value); setMarkMap({}) }}
                   className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 />
               </div>
@@ -184,7 +184,10 @@ export default function AttendancePage() {
                 <Button variant="outline" size="sm" onClick={() => setAll('PRESENT')}>All present</Button>
                 <Button variant="outline" size="sm" onClick={() => setAll('ABSENT')}>All absent</Button>
               </div>
-              <div className="ml-auto pb-0.5">
+              <div className="ml-auto flex items-center gap-2 pb-0.5">
+                {saveAttendance.isSuccess && (
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400">Saved</span>
+                )}
                 <Button size="sm" loading={saveAttendance.isPending} disabled={students.length === 0} onClick={() => saveAttendance.mutate()}>
                   Save attendance
                 </Button>
