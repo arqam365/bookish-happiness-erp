@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Plus, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, ChevronDown, ChevronRight, Pencil, Trash2, X, Check } from 'lucide-react'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,6 +32,65 @@ function groupByModule(permissions: Permission[]) {
   }, {})
 }
 
+function PermissionPicker({
+  permissions,
+  selected,
+  onChange,
+}: {
+  permissions: Permission[]
+  selected: string[]
+  onChange: (ids: string[]) => void
+}) {
+  const grouped = groupByModule(permissions)
+
+  function togglePerm(id: string) {
+    onChange(selected.includes(id) ? selected.filter((p) => p !== id) : [...selected, id])
+  }
+
+  function toggleModule(module: string) {
+    const ids = grouped[module].map((p) => p.id)
+    const allSelected = ids.every((id) => selected.includes(id))
+    onChange(allSelected ? selected.filter((id) => !ids.includes(id)) : [...new Set([...selected, ...ids])])
+  }
+
+  return (
+    <div className="max-h-72 space-y-3 overflow-y-auto rounded-lg border border-indigo-200 bg-white p-3 dark:border-indigo-800 dark:bg-gray-900">
+      {Object.entries(grouped).map(([module, perms]) => {
+        const ids = perms.map((p) => p.id)
+        const allSelected = ids.every((id) => selected.includes(id))
+        const someSelected = ids.some((id) => selected.includes(id))
+        return (
+          <div key={module}>
+            <label className="mb-1.5 flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                ref={(el) => { if (el) el.indeterminate = !allSelected && someSelected }}
+                onChange={() => toggleModule(module)}
+                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">{module}</span>
+            </label>
+            <div className="grid grid-cols-2 gap-1 pl-6 sm:grid-cols-3">
+              {perms.map((p) => (
+                <label key={p.id} className="flex cursor-pointer items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(p.id)}
+                    onChange={() => togglePerm(p.id)}
+                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{p.action}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export function RolesSettings() {
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
@@ -39,6 +98,10 @@ export function RolesSettings() {
   const [roleDesc, setRoleDesc] = useState('')
   const [selectedPermIds, setSelectedPermIds] = useState<string[]>([])
   const [expandedRole, setExpandedRole] = useState<string | null>(null)
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [editPermIds, setEditPermIds] = useState<string[]>([])
 
   const { data: roles = [], isLoading: rolesLoading } = useQuery<Role[]>({
     queryKey: ['settings-roles'],
@@ -48,20 +111,16 @@ export function RolesSettings() {
   const { data: permissions = [] } = useQuery<Permission[]>({
     queryKey: ['settings-permissions'],
     queryFn: () => api.get('/settings/permissions').then((r) => r.data),
-    enabled: showForm,
+    enabled: showForm || editingRoleId !== null,
   })
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['settings-roles'] })
 
   const createRole = useMutation({
     mutationFn: () =>
-      api
-        .post('/settings/roles', {
-          name: roleName,
-          description: roleDesc || undefined,
-          permissionIds: selectedPermIds,
-        })
-        .then((r) => r.data),
+      api.post('/settings/roles', { name: roleName, description: roleDesc || undefined, permissionIds: selectedPermIds }).then((r) => r.data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['settings-roles'] })
+      invalidate()
       setShowForm(false)
       setRoleName('')
       setRoleDesc('')
@@ -69,22 +128,27 @@ export function RolesSettings() {
     },
   })
 
-  const grouped = groupByModule(permissions)
+  const updateRole = useMutation({
+    mutationFn: (id: string) =>
+      api.put(`/settings/roles/${id}`, { name: editName, description: editDesc || undefined, permissionIds: editPermIds }).then((r) => r.data),
+    onSuccess: () => { invalidate(); setEditingRoleId(null) },
+  })
 
-  const togglePerm = (id: string) => {
-    setSelectedPermIds((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    )
+  const deleteRole = useMutation({
+    mutationFn: (id: string) => api.delete(`/settings/roles/${id}`).then((r) => r.data),
+    onSuccess: () => invalidate(),
+  })
+
+  function startEdit(role: Role) {
+    setEditingRoleId(role.id)
+    setEditName(role.name)
+    setEditDesc(role.description ?? '')
+    setEditPermIds(role.rolePermissions.map((rp) => rp.permission.id))
+    setExpandedRole(role.id)
   }
 
-  const toggleModule = (module: string) => {
-    const ids = grouped[module].map((p) => p.id)
-    const allSelected = ids.every((id) => selectedPermIds.includes(id))
-    if (allSelected) {
-      setSelectedPermIds((prev) => prev.filter((id) => !ids.includes(id)))
-    } else {
-      setSelectedPermIds((prev) => [...new Set([...prev, ...ids])])
-    }
+  function cancelEdit() {
+    setEditingRoleId(null)
   }
 
   return (
@@ -94,13 +158,10 @@ export function RolesSettings() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Roles &amp; Permissions</CardTitle>
-              <p className="mt-1 text-xs text-gray-500">
-                Define what each role can access within your organization.
-              </p>
+              <p className="mt-1 text-xs text-gray-500">Define what each role can access within your organization.</p>
             </div>
             <Button size="sm" variant="outline" onClick={() => setShowForm((v) => !v)}>
-              <Plus className="h-3.5 w-3.5" />
-              New role
+              <Plus className="h-3.5 w-3.5" />New role
             </Button>
           </div>
         </CardHeader>
@@ -108,73 +169,15 @@ export function RolesSettings() {
         {showForm && (
           <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 p-5 dark:border-indigo-800 dark:bg-indigo-950/30">
             <h4 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Create new role</h4>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 mb-4">
-              <Input
-                label="Role name"
-                placeholder="Class Teacher"
-                value={roleName}
-                onChange={(e) => setRoleName(e.target.value)}
-              />
-              <Input
-                label="Description (optional)"
-                placeholder="Can view students and attendance"
-                value={roleDesc}
-                onChange={(e) => setRoleDesc(e.target.value)}
-              />
+            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Input label="Role name" placeholder="Class Teacher" value={roleName} onChange={(e) => setRoleName(e.target.value)} />
+              <Input label="Description (optional)" placeholder="Can view students and attendance" value={roleDesc} onChange={(e) => setRoleDesc(e.target.value)} />
             </div>
-
             <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Select permissions</p>
-            <div className="space-y-3 max-h-72 overflow-y-auto rounded-lg border border-indigo-200 bg-white p-3 dark:border-indigo-800 dark:bg-gray-900">
-              {Object.entries(grouped).map(([module, perms]) => {
-                const ids = perms.map((p) => p.id)
-                const allSelected = ids.every((id) => selectedPermIds.includes(id))
-                const someSelected = ids.some((id) => selectedPermIds.includes(id))
-                return (
-                  <div key={module}>
-                    <label className="flex items-center gap-2 cursor-pointer mb-1.5">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        ref={(el) => {
-                          if (el) el.indeterminate = !allSelected && someSelected
-                        }}
-                        onChange={() => toggleModule(module)}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
-                        {module}
-                      </span>
-                    </label>
-                    <div className="pl-6 grid grid-cols-2 gap-1 sm:grid-cols-3">
-                      {perms.map((p) => (
-                        <label key={p.id} className="flex items-center gap-1.5 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={selectedPermIds.includes(p.id)}
-                            onChange={() => togglePerm(p.id)}
-                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          />
-                          <span className="text-xs text-gray-600 dark:text-gray-400">{p.action}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
+            <PermissionPicker permissions={permissions} selected={selectedPermIds} onChange={setSelectedPermIds} />
             <div className="mt-4 flex gap-2">
-              <Button
-                size="sm"
-                loading={createRole.isPending}
-                disabled={!roleName}
-                onClick={() => createRole.mutate()}
-              >
-                Create role
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>
-                Cancel
-              </Button>
+              <Button size="sm" loading={createRole.isPending} disabled={!roleName} onClick={() => createRole.mutate()}>Create role</Button>
+              <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
             </div>
           </div>
         )}
@@ -191,46 +194,77 @@ export function RolesSettings() {
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {roles.map((role) => {
               const isExpanded = expandedRole === role.id
+              const isEditing = editingRoleId === role.id
               const perms = role.rolePermissions.map((rp) => rp.permission)
+
               return (
                 <div key={role.id}>
-                  <button
-                    className="flex w-full items-start justify-between py-3 text-left"
-                    onClick={() => setExpandedRole(isExpanded ? null : role.id)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
-                      )}
-                      <div>
+                  <div className="flex items-start justify-between py-3">
+                    <button
+                      className="flex min-w-0 flex-1 items-start gap-2 text-left"
+                      onClick={() => !isEditing && setExpandedRole(isExpanded ? null : role.id)}
+                    >
+                      {isExpanded
+                        ? <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                        : <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />}
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-gray-900 dark:text-white">{role.name}</span>
                           {role.isSystem && <Badge variant="info">System</Badge>}
                         </div>
-                        {role.description && (
-                          <p className="text-xs text-gray-500">{role.description}</p>
-                        )}
+                        {role.description && <p className="text-xs text-gray-500">{role.description}</p>}
                       </div>
-                    </div>
-                    <span className="text-xs text-gray-400 mt-0.5 shrink-0">
-                      {perms.length} permission{perms.length !== 1 ? 's' : ''}
-                    </span>
-                  </button>
+                    </button>
 
-                  {isExpanded && perms.length > 0 && (
-                    <div className="pb-3 pl-6">
-                      <div className="flex flex-wrap gap-1.5">
-                        {perms.map((p) => (
-                          <span
-                            key={p.id}
-                            className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                    <div className="ml-3 flex shrink-0 items-center gap-1">
+                      <span className="text-xs text-gray-400">{perms.length} perm{perms.length !== 1 ? 's' : ''}</span>
+                      {!role.isSystem && (
+                        <>
+                          <button
+                            onClick={() => isEditing ? cancelEdit() : startEdit(role)}
+                            className="ml-1 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-indigo-600 dark:hover:bg-gray-800"
                           >
-                            {p.module}:{p.action}
-                          </span>
-                        ))}
-                      </div>
+                            {isEditing ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+                          </button>
+                          <button
+                            onClick={() => { if (confirm(`Delete role "${role.name}"?`)) deleteRole.mutate(role.id) }}
+                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-rose-500 dark:hover:bg-gray-800"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="pb-4 pl-6">
+                      {isEditing ? (
+                        <div className="space-y-3 rounded-lg border border-indigo-100 bg-indigo-50/60 p-4 dark:border-indigo-800 dark:bg-indigo-950/20">
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <Input label="Role name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+                            <Input label="Description" value={editDesc} onChange={(e) => setEditDesc(e.target.value)} />
+                          </div>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Permissions</p>
+                          <PermissionPicker permissions={permissions} selected={editPermIds} onChange={setEditPermIds} />
+                          <div className="flex gap-2 pt-1">
+                            <Button size="sm" loading={updateRole.isPending} disabled={!editName} onClick={() => updateRole.mutate(role.id)}>
+                              <Check className="h-3.5 w-3.5" />Save changes
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={cancelEdit}>Cancel</Button>
+                          </div>
+                        </div>
+                      ) : perms.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {perms.map((p) => (
+                            <span key={p.id} className="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                              {p.module}:{p.action}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-400">No permissions assigned.</p>
+                      )}
                     </div>
                   )}
                 </div>
