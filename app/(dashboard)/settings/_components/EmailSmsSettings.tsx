@@ -31,6 +31,153 @@ const configSchema = z.object({
 })
 type ConfigForm = z.infer<typeof configSchema>
 
+const waSchema = z.object({
+  provider: z.enum(['revengage', 'generic']),
+  apiKey: z.string().min(1, 'Required'),
+  apiUrl: z.string().optional(),
+  templateId: z.string().optional(),
+  messageTemplate: z.string().optional(),
+})
+type WaForm = z.infer<typeof waSchema>
+
+interface WaConfig {
+  provider: string | null
+  apiKey: string | null
+  apiUrl: string | null
+  templateId: string | null
+  messageTemplate: string | null
+  configured: boolean
+}
+
+function WhatsAppConfigCard() {
+  const qc = useQueryClient()
+
+  const { data, isLoading } = useQuery<WaConfig>({
+    queryKey: ['settings-whatsapp'],
+    queryFn: () => api.get('/settings/whatsapp').then((r) => r.data),
+  })
+
+  const form = useForm<WaForm>({
+    resolver: zodResolver(waSchema),
+    values: {
+      provider: (data?.provider as 'revengage' | 'generic') ?? 'revengage',
+      apiKey: '',
+      apiUrl: data?.apiUrl ?? '',
+      templateId: data?.templateId ?? '',
+      messageTemplate: data?.messageTemplate ?? '',
+    },
+  })
+
+  const provider = form.watch('provider')
+
+  const save = useMutation({
+    mutationFn: (d: WaForm) => api.put('/settings/whatsapp', d).then((r) => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings-whatsapp'] }),
+  })
+
+  const disconnect = useMutation({
+    mutationFn: () => api.delete('/settings/whatsapp').then((r) => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings-whatsapp'] }),
+  })
+
+  if (isLoading) return <div className="h-48 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>WhatsApp</CardTitle>
+          {data?.configured && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Connected
+            </span>
+          )}
+        </div>
+      </CardHeader>
+      <form onSubmit={form.handleSubmit((d) => save.mutate(d))} className="space-y-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Provider</label>
+          <div className="flex gap-3">
+            {(['revengage', 'generic'] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => form.setValue('provider', p)}
+                className={cn(
+                  'rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
+                  provider === p
+                    ? 'border-[#4F46E5] bg-[#4F46E5]/10 text-[#4F46E5] dark:bg-[#4F46E5]/20'
+                    : 'border-gray-200 text-gray-600 hover:border-gray-400 dark:border-gray-700 dark:text-gray-400',
+                )}
+              >
+                {p === 'revengage' ? 'RevEngage' : 'Generic / Custom'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <Input
+          label="API Key *"
+          type="password"
+          placeholder={data?.configured ? '••••••••  (leave blank to keep existing)' : 'Enter API key'}
+          error={form.formState.errors.apiKey?.message}
+          {...form.register('apiKey')}
+        />
+
+        {provider === 'generic' && (
+          <Input
+            label="API URL *"
+            placeholder="https://your-provider.com/api/send"
+            {...form.register('apiUrl')}
+          />
+        )}
+
+        {provider === 'revengage' && (
+          <Input
+            label="Template ID"
+            placeholder="template_abc123"
+            {...form.register('templateId')}
+          />
+        )}
+
+        {provider === 'generic' && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Message template{' '}
+              <span className="font-normal text-gray-400">(variables: {'{{guardianName}}'} {'{{studentName}}'} {'{{admissionNo}}'} {'{{date}}'})</span>
+            </label>
+            <textarea
+              rows={3}
+              placeholder="Dear {{guardianName}}, your child {{studentName}} ({{admissionNo}}) was absent on {{date}}."
+              className="rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F46E5] dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              {...form.register('messageTemplate')}
+            />
+          </div>
+        )}
+
+        {provider === 'revengage' && (
+          <p className="rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-500 dark:bg-gray-800">
+            Template must have 4 variables in order: <code>{'{{1}}'}</code> guardian name · <code>{'{{2}}'}</code> student name · <code>{'{{3}}'}</code> admission no · <code>{'{{4}}'}</code> date
+          </p>
+        )}
+
+        <div className="flex items-center justify-between pt-1">
+          {data?.configured && (
+            <Button type="button" variant="ghost" size="sm" loading={disconnect.isPending} onClick={() => disconnect.mutate()}
+              className="text-rose-500 hover:text-rose-600">
+              Disconnect
+            </Button>
+          )}
+          <div className="ml-auto flex items-center gap-3">
+            {save.isSuccess && <span className="text-xs text-emerald-600">Saved</span>}
+            <Button type="submit" size="sm" loading={save.isPending}>Save</Button>
+          </div>
+        </div>
+      </form>
+    </Card>
+  )
+}
+
 function ConfigTab() {
   const qc = useQueryClient()
 
@@ -57,50 +204,54 @@ function ConfigTab() {
   if (isLoading) return <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />)}</div>
 
   return (
-    <form onSubmit={form.handleSubmit((d) => save.mutate(d))} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Email — Resend</CardTitle>
-        </CardHeader>
-        <div className="space-y-4">
-          <Input label="Resend API Key" type="password" placeholder="re_..." {...form.register('resendApiKey')} />
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Used for transactional emails (fee reminders, results, welcome).</p>
-            <Button type="button" variant="ghost" size="sm" loading={testEmail.isPending} onClick={() => testEmail.mutate()}>
-              <Send className="h-3.5 w-3.5" />Test send
-            </Button>
-          </div>
-          {testEmail.isSuccess && <p className="text-xs text-emerald-600">Test email sent.</p>}
-          {testEmail.isError && <p className="text-xs text-rose-500">Failed to send test email.</p>}
-        </div>
-      </Card>
+    <div className="space-y-6">
+      <WhatsAppConfigCard />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>SMS — Twilio</CardTitle>
-        </CardHeader>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input label="Account SID" type="password" placeholder="AC..." {...form.register('twilioSid')} />
-            <Input label="Auth Token" type="password" {...form.register('twilioToken')} />
+      <form onSubmit={form.handleSubmit((d) => save.mutate(d))} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Email — Resend</CardTitle>
+          </CardHeader>
+          <div className="space-y-4">
+            <Input label="Resend API Key" type="password" placeholder="re_..." {...form.register('resendApiKey')} />
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Used for transactional emails (fee reminders, results, welcome).</p>
+              <Button type="button" variant="ghost" size="sm" loading={testEmail.isPending} onClick={() => testEmail.mutate()}>
+                <Send className="h-3.5 w-3.5" />Test send
+              </Button>
+            </div>
+            {testEmail.isSuccess && <p className="text-xs text-emerald-600">Test email sent.</p>}
+            {testEmail.isError && <p className="text-xs text-rose-500">Failed to send test email.</p>}
           </div>
-          <Input label="From Phone Number" placeholder="+1234567890" {...form.register('twilioPhone')} />
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-500 dark:text-gray-400">Used for attendance absent alerts and fee due reminders.</p>
-            <Button type="button" variant="ghost" size="sm" loading={testSms.isPending} onClick={() => testSms.mutate()}>
-              <Send className="h-3.5 w-3.5" />Test SMS
-            </Button>
-          </div>
-          {testSms.isSuccess && <p className="text-xs text-emerald-600">Test SMS sent.</p>}
-          {testSms.isError && <p className="text-xs text-rose-500">Failed to send test SMS.</p>}
-        </div>
-      </Card>
+        </Card>
 
-      <div className="flex justify-end">
-        <Button type="submit" loading={save.isPending}>Save configuration</Button>
-      </div>
-      {save.isSuccess && <p className="text-right text-xs text-emerald-600">Saved successfully</p>}
-    </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>SMS — Twilio</CardTitle>
+          </CardHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input label="Account SID" type="password" placeholder="AC..." {...form.register('twilioSid')} />
+              <Input label="Auth Token" type="password" {...form.register('twilioToken')} />
+            </div>
+            <Input label="From Phone Number" placeholder="+1234567890" {...form.register('twilioPhone')} />
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Used for attendance absent alerts and fee due reminders.</p>
+              <Button type="button" variant="ghost" size="sm" loading={testSms.isPending} onClick={() => testSms.mutate()}>
+                <Send className="h-3.5 w-3.5" />Test SMS
+              </Button>
+            </div>
+            {testSms.isSuccess && <p className="text-xs text-emerald-600">Test SMS sent.</p>}
+            {testSms.isError && <p className="text-xs text-rose-500">Failed to send test SMS.</p>}
+          </div>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button type="submit" loading={save.isPending}>Save configuration</Button>
+        </div>
+        {save.isSuccess && <p className="text-right text-xs text-emerald-600">Saved successfully</p>}
+      </form>
+    </div>
   )
 }
 
