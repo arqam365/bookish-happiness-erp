@@ -367,7 +367,7 @@ export function AdmissionModal() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Input label="First name *" placeholder="First name" error={studentForm.formState.errors.firstName?.message} {...studentForm.register('firstName')} />
-                <Input label="Last name *" placeholder="Last name" error={studentForm.formState.errors.lastName?.message} {...studentForm.register('lastName')} />
+                <Input label="Last name" placeholder="Last name" error={studentForm.formState.errors.lastName?.message} {...studentForm.register('lastName')} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Input label="Date of birth" type="date" {...studentForm.register('dateOfBirth')} />
