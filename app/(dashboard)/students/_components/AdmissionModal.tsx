@@ -128,7 +128,10 @@ export function AdmissionModal() {
       // 1. create or resolve guardian
       let guardianId: string
       if (guardianMode === 'new' && newGuardianData) {
-        const g = await api.post('/guardians', { ...newGuardianData, isSponsor: false }).then((r) => r.data)
+        const guardianPayload = Object.fromEntries(
+          Object.entries({ ...newGuardianData, isSponsor: false }).filter(([, v]) => v !== '' && v !== undefined),
+        )
+        const g = await api.post('/guardians', guardianPayload).then((r) => r.data)
         guardianId = g.id
       } else {
         guardianId = existingGuardianId
