@@ -127,12 +127,14 @@ export function AdmissionModal() {
     mutationFn: async (enrollment: EnrollmentData) => {
       // 1. create or resolve guardian
       let guardianId: string
+      let guardianCreated = false
       if (guardianMode === 'new' && newGuardianData) {
         const guardianPayload = Object.fromEntries(
           Object.entries({ ...newGuardianData, isSponsor: false }).filter(([, v]) => v !== '' && v !== undefined),
         )
         const g = await api.post('/guardians', guardianPayload).then((r) => r.data)
         guardianId = g.id
+        guardianCreated = true
       } else {
         guardianId = existingGuardianId
       }
@@ -142,15 +144,27 @@ export function AdmissionModal() {
         Object.entries({ ...studentData!, ...(photo && { photo }), ...(aadhaarFront && { aadhaarFront }), ...(aadhaarBack && { aadhaarBack }), ...(category && { category }) })
           .filter(([, v]) => v !== '' && v !== undefined),
       )
-      const student = await api.post('/students', studentPayload).then((r) => r.data)
+      let studentId: string | null = null
+      try {
+        const student = await api.post('/students', studentPayload).then((r) => r.data)
+        studentId = student.id
 
-      // 3. enroll
-      await api.post(`/students/${student.id}/enroll`, enrollment)
+        // 3. enroll — filter empty strings so sectionId/rollNumber "" don't reach backend
+        const enrollPayload = Object.fromEntries(
+          Object.entries(enrollment).filter(([, v]) => v !== '' && v !== undefined),
+        )
+        await api.post(`/students/${student.id}/enroll`, enrollPayload)
 
-      // 4. link guardian
-      await api.post(`/guardians/students/${student.id}/link`, { guardianId, isPrimary: guardianIsPrimary })
+        // 4. link guardian
+        await api.post(`/guardians/students/${student.id}/link`, { guardianId, isPrimary: guardianIsPrimary })
 
-      return student
+        return student
+      } catch (err) {
+        // rollback: delete orphaned student and newly-created guardian so DB stays clean
+        if (studentId) await api.delete(`/students/${studentId}`).catch(() => {})
+        if (guardianCreated) await api.delete(`/guardians/${guardianId}`).catch(() => {})
+        throw err
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['students'] })
