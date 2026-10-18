@@ -185,8 +185,8 @@ function RoleTab({ employee }: { employee: Employee }) {
         {isLoading ? (
           <div className="h-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800" />
         ) : (
-          <Select value={selectedRoleId} onValueChange={setSelectedRoleId} placeholder="No role assigned">
-            <SelectItem value="">No role</SelectItem>
+          <Select value={selectedRoleId || '__none__'} onValueChange={(v) => setSelectedRoleId(v === '__none__' ? '' : v)} placeholder="No role assigned">
+            <SelectItem value="__none__">No role</SelectItem>
             {roles.map((r) => (
               <SelectItem key={r.id} value={r.id}>{r.name}{r.description ? ` — ${r.description}` : ''}</SelectItem>
             ))}
