@@ -90,26 +90,28 @@ function AddGuardianModal({ isSponsor = false }: { isSponsor?: boolean }) {
         title={isSponsor ? 'Add sponsor' : 'Add guardian'}
         description={isSponsor ? 'Register a new sponsor.' : 'Register a new guardian.'}
       >
-        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="First name *" placeholder="First name" error={form.formState.errors.firstName?.message} {...form.register('firstName')} />
-            <Input label="Last name *" placeholder="Last name" error={form.formState.errors.lastName?.message} {...form.register('lastName')} />
+        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="First name *" placeholder="First name" error={form.formState.errors.firstName?.message} {...form.register('firstName')} />
+              <Input label="Last name *" placeholder="Last name" error={form.formState.errors.lastName?.message} {...form.register('lastName')} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={isSponsor ? 'Sponsor type *' : 'Relationship *'}
+                placeholder={isSponsor ? 'Individual / NGO / Trust' : 'Father / Mother / Uncle'}
+                error={form.formState.errors.relationship?.message}
+                {...form.register('relationship')}
+              />
+              <Input label="Phone *" placeholder="+91 98765 43210" error={form.formState.errors.phone?.message} {...form.register('phone')} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Email" type="email" placeholder="email@example.com" {...form.register('email')} />
+              <Input label={isSponsor ? 'Organization' : 'Occupation'} placeholder={isSponsor ? 'Organization name' : 'Engineer / Farmer'} {...form.register('occupation')} />
+            </div>
+            <Input label="Address" placeholder="Full address" {...form.register('address')} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label={isSponsor ? 'Sponsor type *' : 'Relationship *'}
-              placeholder={isSponsor ? 'Individual / NGO / Trust' : 'Father / Mother / Uncle'}
-              error={form.formState.errors.relationship?.message}
-              {...form.register('relationship')}
-            />
-            <Input label="Phone *" placeholder="+91 98765 43210" error={form.formState.errors.phone?.message} {...form.register('phone')} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Email" type="email" placeholder="email@example.com" {...form.register('email')} />
-            <Input label={isSponsor ? 'Organization' : 'Occupation'} placeholder={isSponsor ? 'Organization name' : 'Engineer / Farmer'} {...form.register('occupation')} />
-          </div>
-          <Input label="Address" placeholder="Full address" {...form.register('address')} />
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
             <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
             <Button type="submit" size="sm" loading={create.isPending}>{isSponsor ? 'Add sponsor' : 'Add guardian'}</Button>
           </div>

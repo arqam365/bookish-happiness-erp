@@ -10,7 +10,7 @@ import api from '@/lib/api'
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
-const REQUIRED = ['admissionNo', 'firstName', 'guardianFirstName', 'guardianPhone']
+const REQUIRED = ['admissionNo', 'firstName', 'guardianFirstName']
 
 const ALL_COLS = [
   'admissionNo', 'firstName', 'lastName', 'dateOfBirth', 'gender',
@@ -126,7 +126,7 @@ function applyMapping(rawRows: Row[], colMap: Record<string, string>, defaults: 
     for (const [field, srcCol] of Object.entries(colMap)) {
       if (!srcCol) continue
       let val = String(raw[srcCol] ?? '').trim()
-      if (!val) continue
+      if (!val || val === '0') continue
       if (field === 'dateOfBirth') val = parseDate(val)
       if (field === 'firstName' && !hasLastName) {
         const parts = val.split(/\s+/)

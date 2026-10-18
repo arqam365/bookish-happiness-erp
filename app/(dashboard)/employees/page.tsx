@@ -69,29 +69,31 @@ function AddEmployeeModal() {
         <Button size="sm"><Plus className="h-4 w-4" />Add employee</Button>
       </DialogTrigger>
       <DialogContent title="Add employee" description="Register a new employee or faculty member.">
-        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="First name *" error={form.formState.errors.firstName?.message} {...form.register('firstName')} />
-            <Input label="Last name *" error={form.formState.errors.lastName?.message} {...form.register('lastName')} />
+        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="First name *" error={form.formState.errors.firstName?.message} {...form.register('firstName')} />
+              <Input label="Last name *" error={form.formState.errors.lastName?.message} {...form.register('lastName')} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Designation *" placeholder="Teacher / Principal" error={form.formState.errors.designation?.message} {...form.register('designation')} />
+              <Input label="Department" placeholder="Science / Admin" {...form.register('department')} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Phone" {...form.register('phone')} />
+              <Input label="Email" type="email" {...form.register('email')} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Join date *" type="date" error={form.formState.errors.joinDate?.message} {...form.register('joinDate')} />
+              <Input label="Salary (optional)" type="number" min="0" {...form.register('salary')} />
+            </div>
+            <Input label="Emergency contact" placeholder="Name + phone" {...form.register('emergencyContact')} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Teacher ID No." placeholder="Govt. registration no." {...form.register('teacherIdNo')} />
+              <Input label="Address" placeholder="Street, city" {...form.register('address')} />
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Designation *" placeholder="Teacher / Principal" error={form.formState.errors.designation?.message} {...form.register('designation')} />
-            <Input label="Department" placeholder="Science / Admin" {...form.register('department')} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Phone" {...form.register('phone')} />
-            <Input label="Email" type="email" {...form.register('email')} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Join date *" type="date" error={form.formState.errors.joinDate?.message} {...form.register('joinDate')} />
-            <Input label="Salary (optional)" type="number" min="0" {...form.register('salary')} />
-          </div>
-          <Input label="Emergency contact" placeholder="Name + phone" {...form.register('emergencyContact')} />
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Teacher ID No." placeholder="Govt. registration no." {...form.register('teacherIdNo')} />
-            <Input label="Address" placeholder="Street, city" {...form.register('address')} />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
             <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
             <Button type="submit" size="sm" loading={create.isPending}>Save employee</Button>
           </div>

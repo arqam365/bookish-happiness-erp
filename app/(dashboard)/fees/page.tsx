@@ -124,80 +124,82 @@ function CollectPaymentModal() {
         <Button size="sm"><Plus className="h-4 w-4" />Collect payment</Button>
       </DialogTrigger>
       <DialogContent title="Collect contribution" description="Record a new payment and generate a receipt.">
-        <form onSubmit={form.handleSubmit((d) => collect.mutate(d))} className="space-y-4">
-          {/* Student search */}
-          <div>
-            <Input
-              label="Search student"
-              placeholder="Name or admission no…"
-              value={studentSearch}
-              onChange={(e) => { setStudentSearch(e.target.value); form.setValue('studentId', '') }}
-            />
-            {students.length > 0 && !form.watch('studentId') && (
-              <div className="mt-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                {students.map((s) => (
-                  <button key={s.id} type="button"
-                    className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-                    onClick={() => { form.setValue('studentId', s.id); setStudentSearch(`${s.firstName} ${s.lastName} (${s.admissionNo})`) }}
-                  >
-                    <span className="font-medium text-gray-900 dark:text-white">{s.firstName} {s.lastName}</span>
-                    <span className="font-mono text-xs text-gray-400">{s.admissionNo}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            {form.formState.errors.studentId && <p className="mt-1 text-xs text-rose-500">{form.formState.errors.studentId.message}</p>}
-          </div>
+        <form onSubmit={form.handleSubmit((d) => collect.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+            {/* Student search */}
+            <div>
+              <Input
+                label="Search student"
+                placeholder="Name or admission no…"
+                value={studentSearch}
+                onChange={(e) => { setStudentSearch(e.target.value); form.setValue('studentId', '') }}
+              />
+              {students.length > 0 && !form.watch('studentId') && (
+                <div className="mt-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                  {students.map((s) => (
+                    <button key={s.id} type="button"
+                      className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                      onClick={() => { form.setValue('studentId', s.id); setStudentSearch(`${s.firstName} ${s.lastName} (${s.admissionNo})`) }}
+                    >
+                      <span className="font-medium text-gray-900 dark:text-white">{s.firstName} {s.lastName}</span>
+                      <span className="font-mono text-xs text-gray-400">{s.admissionNo}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {form.formState.errors.studentId && <p className="mt-1 text-xs text-rose-500">{form.formState.errors.studentId.message}</p>}
+            </div>
 
-          {/* Fee structure picker */}
-          <Select
-            label="Contribution type (optional)"
-            value={form.watch('feeStructureId') ?? ''}
-            onValueChange={(v) => {
-              form.setValue('feeStructureId', v)
-              const s = structures.find((x) => x.id === v)
-              if (s) form.setValue('amount', Number(s.amount))
-            }}
-            placeholder="Select fee type…"
-          >
-            {structures.length === 0
-              ? <SelectItem value="__none__">No fee types configured</SelectItem>
-              : structures.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name} — {fmtCur(Number(s.amount))} ({s.academicYear.name})
-                  </SelectItem>
-                ))
-            }
-          </Select>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Amount (INR) *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
-            <Input label="Discount" type="number" min="0" {...form.register('discount')} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Late fee" type="number" min="0"
-              defaultValue={selectedStructure?.lateFeeAmount ?? undefined}
-              {...form.register('lateFee')}
-            />
-            <Select label="Payment method" value={form.watch('paymentMethod') ?? ''} onValueChange={(v) => form.setValue('paymentMethod', v as any)} placeholder="Select">
-              <SelectItem value="CASH">Cash</SelectItem>
-              <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-              <SelectItem value="CHEQUE">Cheque</SelectItem>
-              <SelectItem value="ONLINE">Online</SelectItem>
+            {/* Fee structure picker */}
+            <Select
+              label="Contribution type (optional)"
+              value={form.watch('feeStructureId') ?? ''}
+              onValueChange={(v) => {
+                form.setValue('feeStructureId', v)
+                const s = structures.find((x) => x.id === v)
+                if (s) form.setValue('amount', Number(s.amount))
+              }}
+              placeholder="Select fee type…"
+            >
+              {structures.length === 0
+                ? <SelectItem value="__none__">No fee types configured</SelectItem>
+                : structures.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name} — {fmtCur(Number(s.amount))} ({s.academicYear.name})
+                    </SelectItem>
+                  ))
+              }
             </Select>
-          </div>
 
-          <Input label="Remarks" placeholder="Optional note" {...form.register('remarks')} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Amount (INR) *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
+              <Input label="Discount" type="number" min="0" {...form.register('discount')} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Late fee" type="number" min="0"
+                defaultValue={selectedStructure?.lateFeeAmount ?? undefined}
+                {...form.register('lateFee')}
+              />
+              <Select label="Payment method" value={form.watch('paymentMethod') ?? ''} onValueChange={(v) => form.setValue('paymentMethod', v as any)} placeholder="Select">
+                <SelectItem value="CASH">Cash</SelectItem>
+                <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                <SelectItem value="CHEQUE">Cheque</SelectItem>
+                <SelectItem value="ONLINE">Online</SelectItem>
+              </Select>
+            </div>
+
+            <Input label="Remarks" placeholder="Optional note" {...form.register('remarks')} />
+            {receipt && <ReceiptPrint receipt={receipt} />}
+          </div>
 
           {!receipt && (
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
               <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
               <Button type="submit" size="sm" loading={collect.isPending}>Collect</Button>
             </div>
           )}
         </form>
-        {receipt && <ReceiptPrint receipt={receipt} />}
       </DialogContent>
     </Dialog>
   )

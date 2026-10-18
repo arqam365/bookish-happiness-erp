@@ -176,21 +176,23 @@ function VoucherTab() {
             <Button size="sm" disabled={noAccounts}><Plus className="h-4 w-4" />New voucher</Button>
           </DialogTrigger>
           <DialogContent title="Voucher entry" description="Record a debit or credit entry.">
-            <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="Date *" type="date" error={form.formState.errors.date?.message} {...form.register('date')} />
-                <Select label="Type *" value={form.watch('type') ?? ''} onValueChange={(v) => form.setValue('type', v as 'DEBIT' | 'CREDIT')} placeholder="Select">
-                  <SelectItem value="DEBIT">Debit</SelectItem>
-                  <SelectItem value="CREDIT">Credit</SelectItem>
+            <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <Input label="Date *" type="date" error={form.formState.errors.date?.message} {...form.register('date')} />
+                  <Select label="Type *" value={form.watch('type') ?? ''} onValueChange={(v) => form.setValue('type', v as 'DEBIT' | 'CREDIT')} placeholder="Select">
+                    <SelectItem value="DEBIT">Debit</SelectItem>
+                    <SelectItem value="CREDIT">Credit</SelectItem>
+                  </Select>
+                </div>
+                <Select label="Account *" value={form.watch('accountId') ?? ''} onValueChange={(v) => form.setValue('accountId', v)} placeholder="Select account" error={form.formState.errors.accountId?.message}>
+                  {accounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)}
                 </Select>
+                <Input label="Amount *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
+                <Input label="Description *" error={form.formState.errors.description?.message} {...form.register('description')} />
+                <Input label="Remarks" {...form.register('remarks')} />
               </div>
-              <Select label="Account *" value={form.watch('accountId') ?? ''} onValueChange={(v) => form.setValue('accountId', v)} placeholder="Select account" error={form.formState.errors.accountId?.message}>
-                {accounts.map((a) => <SelectItem key={a.id} value={a.id}>{a.code} — {a.name}</SelectItem>)}
-              </Select>
-              <Input label="Amount *" type="number" min="0" error={form.formState.errors.amount?.message} {...form.register('amount')} />
-              <Input label="Description *" error={form.formState.errors.description?.message} {...form.register('description')} />
-              <Input label="Remarks" {...form.register('remarks')} />
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
                 <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
                 <Button type="submit" size="sm" loading={create.isPending}>Post voucher</Button>
               </div>

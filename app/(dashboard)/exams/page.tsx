@@ -70,32 +70,33 @@ function CreateExamModal() {
         <Button size="sm"><Plus className="h-4 w-4" />Create exam</Button>
       </DialogTrigger>
       <DialogContent title="Create exam" description="Set up a new examination.">
-        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="space-y-4">
-          <Input label="Exam name *" placeholder="Midterm 2025" error={form.formState.errors.name?.message} {...form.register('name')} />
+        <form onSubmit={form.handleSubmit((d) => create.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+            <Input label="Exam name *" placeholder="Midterm 2025" error={form.formState.errors.name?.message} {...form.register('name')} />
 
-          <div className="grid grid-cols-2 gap-3">
-            <Select label="Academic year *" value={form.watch('academicYearId') ?? ''} onValueChange={(v) => form.setValue('academicYearId', v)} placeholder="Select" error={form.formState.errors.academicYearId?.message}>
-              {years.map((y) => <SelectItem key={y.id} value={y.id}>{y.name}{y.isActive ? ' (Active)' : ''}</SelectItem>)}
-            </Select>
-            <Select label="Exam type *" value={form.watch('examTypeId') ?? ''} onValueChange={(v) => form.setValue('examTypeId', v)} placeholder="Select" error={form.formState.errors.examTypeId?.message}>
-              {examTypes.length === 0
-                ? <SelectItem value="__none__">No types configured</SelectItem>
-                : examTypes.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)
-              }
-            </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <Select label="Academic year *" value={form.watch('academicYearId') ?? ''} onValueChange={(v) => form.setValue('academicYearId', v)} placeholder="Select" error={form.formState.errors.academicYearId?.message}>
+                {years.map((y) => <SelectItem key={y.id} value={y.id}>{y.name}{y.isActive ? ' (Active)' : ''}</SelectItem>)}
+              </Select>
+              <Select label="Exam type *" value={form.watch('examTypeId') ?? ''} onValueChange={(v) => form.setValue('examTypeId', v)} placeholder="Select" error={form.formState.errors.examTypeId?.message}>
+                {examTypes.length === 0
+                  ? <SelectItem value="__none__">No types configured</SelectItem>
+                  : examTypes.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)
+                }
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Start date *" type="date" error={form.formState.errors.startDate?.message} {...form.register('startDate')} />
+              <Input label="End date *" type="date" error={form.formState.errors.endDate?.message} {...form.register('endDate')} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Total marks *" type="number" error={form.formState.errors.totalMarks?.message} {...form.register('totalMarks')} />
+              <Input label="Passing marks *" type="number" error={form.formState.errors.passingMarks?.message} {...form.register('passingMarks')} />
+            </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Start date *" type="date" error={form.formState.errors.startDate?.message} {...form.register('startDate')} />
-            <Input label="End date *" type="date" error={form.formState.errors.endDate?.message} {...form.register('endDate')} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="Total marks *" type="number" error={form.formState.errors.totalMarks?.message} {...form.register('totalMarks')} />
-            <Input label="Passing marks *" type="number" error={form.formState.errors.passingMarks?.message} {...form.register('passingMarks')} />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
             <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
             <Button type="submit" size="sm" loading={create.isPending}>Create</Button>
           </div>

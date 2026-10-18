@@ -105,38 +105,40 @@ function HifzTab() {
             <Button size="sm"><Plus className="h-4 w-4" />Record Hifz</Button>
           </DialogTrigger>
           <DialogContent title="Record Hifz progress">
-            <form onSubmit={form.handleSubmit((d) => record.mutate(d))} className="space-y-4">
-              <div>
-                <Input label="Student" placeholder="Search by name…" value={studentSearch} onChange={(e) => setStudentSearch(e.target.value)} />
-                {students.length > 0 && !form.watch('studentId') && (
-                  <div className="mt-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    {students.map((s) => (
-                      <button key={s.id} type="button"
-                        className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-                        onClick={() => { form.setValue('studentId', s.id); setStudentSearch(`${s.firstName} ${s.lastName}`) }}
-                      >
-                        <span className="font-medium dark:text-white">{s.firstName} {s.lastName}</span>
-                        <span className="text-xs text-gray-400">{s.admissionNo}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+            <form onSubmit={form.handleSubmit((d) => record.mutate(d))} className="flex flex-col flex-1 min-h-0">
+              <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+                <div>
+                  <Input label="Student" placeholder="Search by name…" value={studentSearch} onChange={(e) => setStudentSearch(e.target.value)} />
+                  {students.length > 0 && !form.watch('studentId') && (
+                    <div className="mt-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                      {students.map((s) => (
+                        <button key={s.id} type="button"
+                          className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                          onClick={() => { form.setValue('studentId', s.id); setStudentSearch(`${s.firstName} ${s.lastName}`) }}
+                        >
+                          <span className="font-medium dark:text-white">{s.firstName} {s.lastName}</span>
+                          <span className="text-xs text-gray-400">{s.admissionNo}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input label="Surah from" type="number" min="1" max="114" {...form.register('surahFrom')} />
+                  <Input label="Surah to" type="number" min="1" max="114" {...form.register('surahTo')} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Input label="Ayah from" type="number" min="1" {...form.register('ayahFrom')} />
+                  <Input label="Ayah to" type="number" min="1" {...form.register('ayahTo')} />
+                </div>
+                <Select label="Status" value={form.watch('status')} onValueChange={(v) => form.setValue('status', v as any)} placeholder="Select status">
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="REVISION">Needs revision</SelectItem>
+                  <SelectItem value="WEAK">Weak</SelectItem>
+                </Select>
+                <Input label="Remarks" placeholder="Optional notes" {...form.register('remarks')} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="Surah from" type="number" min="1" max="114" {...form.register('surahFrom')} />
-                <Input label="Surah to" type="number" min="1" max="114" {...form.register('surahTo')} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Input label="Ayah from" type="number" min="1" {...form.register('ayahFrom')} />
-                <Input label="Ayah to" type="number" min="1" {...form.register('ayahTo')} />
-              </div>
-              <Select label="Status" value={form.watch('status')} onValueChange={(v) => form.setValue('status', v as any)} placeholder="Select status">
-                <SelectItem value="COMPLETED">Completed</SelectItem>
-                <SelectItem value="REVISION">Needs revision</SelectItem>
-                <SelectItem value="WEAK">Weak</SelectItem>
-              </Select>
-              <Input label="Remarks" placeholder="Optional notes" {...form.register('remarks')} />
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
                 <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
                 <Button type="submit" size="sm" loading={record.isPending}>Save</Button>
               </div>
