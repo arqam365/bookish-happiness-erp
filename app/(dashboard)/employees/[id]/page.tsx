@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, UserCheck, Phone, Mail, Briefcase, DollarSign, Pencil, X, Check, ShieldCheck, BookOpen, Trash2, Plus } from 'lucide-react'
+import { ArrowLeft, UserCheck, Phone, Mail, Briefcase, Pencil, X, Check, ShieldCheck, BookOpen, Trash2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -475,7 +475,7 @@ export default function EmployeeProfilePage() {
                   {employee.salary != null && (
                     <DetailRow label="Salary" value={
                       <span className="flex items-center gap-1">
-                        <DollarSign className="h-3.5 w-3.5 text-gray-400" />{employee.salary.toLocaleString()}
+                        <span className="text-gray-400 text-xs">₹</span>{employee.salary.toLocaleString('en-IN')}
                       </span>
                     } />
                   )}
