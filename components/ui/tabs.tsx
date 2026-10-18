@@ -31,7 +31,7 @@ export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
     <RadixTabs.Trigger
       value={value}
       className={cn(
-        'relative px-4 py-2.5 text-sm font-medium text-gray-500 transition-colors',
+        'relative flex items-center px-4 py-2.5 text-sm font-medium text-gray-500 transition-colors',
         'hover:text-gray-800 dark:text-gray-400 dark:hover:text-white',
         'focus:outline-none',
         'data-[state=active]:text-[#4F46E5] dark:data-[state=active]:text-indigo-400',
