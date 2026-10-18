@@ -155,7 +155,8 @@ function EditStudentModal({ student }: { student: Student }) {
         Edit student
       </Button>
       <DialogContent title="Edit student" description="Update student details." className="max-w-xl">
-        <form onSubmit={form.handleSubmit((d) => update.mutate(d))} className="space-y-4">
+        <form onSubmit={form.handleSubmit((d) => update.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Admission no *"
@@ -221,8 +222,8 @@ function EditStudentModal({ student }: { student: Student }) {
           {update.isError && (
             <p className="text-sm text-red-500">{apiError(update.error)}</p>
           )}
-
-          <div className="flex justify-end gap-2 pt-2">
+          </div>
+          <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
             <DialogClose asChild>
               <Button type="button" variant="ghost" size="sm">Cancel</Button>
             </DialogClose>
@@ -346,6 +347,90 @@ function LinkGuardianModal({ studentId }: { studentId: string }) {
             </Button>
           </div>
         </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ── EditEnrollmentModal ───────────────────────────────────────────────────────
+
+interface ClassItem { id: string; name: string; sections: Array<{ id: string; name: string }> }
+interface AcademicYear { id: string; name: string; isActive: boolean }
+
+const enrollSchema = z.object({
+  academicYearId: z.string().min(1, 'Required'),
+  classId: z.string().min(1, 'Required'),
+  sectionId: z.string().optional(),
+  rollNumber: z.string().optional(),
+})
+type EnrollForm = z.infer<typeof enrollSchema>
+
+function EditEnrollmentModal({ studentId, enrollment }: { studentId: string; enrollment: Enrollment }) {
+  const [open, setOpen] = useState(false)
+  const qc = useQueryClient()
+
+  const form = useForm<EnrollForm>({
+    resolver: zodResolver(enrollSchema),
+    defaultValues: {
+      academicYearId: enrollment.academicYear.id,
+      classId: enrollment.class.id,
+      sectionId: enrollment.section?.id ?? '',
+      rollNumber: enrollment.rollNumber ?? '',
+    },
+  })
+
+  const { data: years = [] } = useQuery<AcademicYear[]>({
+    queryKey: ['settings-academic-years'],
+    queryFn: () => api.get('/settings/academic-years').then((r) => r.data),
+    enabled: open,
+  })
+
+  const { data: classes = [] } = useQuery<ClassItem[]>({
+    queryKey: ['settings-classes'],
+    queryFn: () => api.get('/settings/classes').then((r) => r.data),
+    enabled: open,
+  })
+
+  const selectedClass = classes.find((c) => c.id === form.watch('classId'))
+
+  const update = useMutation({
+    mutationFn: (data: EnrollForm) => {
+      const payload = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== '' && v !== undefined))
+      return api.patch(`/students/${studentId}/enrollments/${enrollment.id}`, payload).then((r) => r.data)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student', studentId] })
+      setOpen(false)
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
+        <Pencil className="h-3.5 w-3.5" />
+      </Button>
+      <DialogContent title="Edit enrollment" description="Update class, section, or roll number.">
+        <form onSubmit={form.handleSubmit((d) => update.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+            <Select label="Academic year *" value={form.watch('academicYearId')} onValueChange={(v) => form.setValue('academicYearId', v)} placeholder="Select year" error={form.formState.errors.academicYearId?.message}>
+              {years.map((y) => <SelectItem key={y.id} value={y.id}>{y.name}{y.isActive ? ' (Active)' : ''}</SelectItem>)}
+            </Select>
+            <Select label="Class *" value={form.watch('classId')} onValueChange={(v) => { form.setValue('classId', v); form.setValue('sectionId', '') }} placeholder="Select class" error={form.formState.errors.classId?.message}>
+              {classes.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            </Select>
+            {selectedClass && selectedClass.sections.length > 0 && (
+              <Select label="Section" value={form.watch('sectionId') ?? ''} onValueChange={(v) => form.setValue('sectionId', v)} placeholder="Select section">
+                {selectedClass.sections.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              </Select>
+            )}
+            <Input label="Roll number" placeholder="Optional" {...form.register('rollNumber')} />
+            {update.isError && <p className="text-sm text-red-500">{apiError(update.error)}</p>}
+          </div>
+          <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
+            <DialogClose asChild><Button type="button" variant="ghost" size="sm">Cancel</Button></DialogClose>
+            <Button type="submit" size="sm" loading={update.isPending}>Save</Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   )
@@ -519,9 +604,12 @@ export default function StudentProfilePage() {
                         <p className="mt-0.5 text-xs text-gray-400">Roll: {enr.rollNumber}</p>
                       )}
                     </div>
-                    <Badge variant={enr.isActive ? 'success' : 'default'}>
-                      {enr.isActive ? 'Current' : 'Past'}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={enr.isActive ? 'success' : 'default'}>
+                        {enr.isActive ? 'Current' : 'Past'}
+                      </Badge>
+                      <EditEnrollmentModal studentId={student.id} enrollment={enr} />
+                    </div>
                   </div>
                 ))}
               </div>
