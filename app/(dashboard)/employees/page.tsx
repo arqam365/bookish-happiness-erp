@@ -17,6 +17,15 @@ import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/
 import api from '@/lib/api'
 import { useDebounce } from '@/hooks/useDebounce'
 
+type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'RESIGNED' | 'TERMINATED'
+
+const STATUS_CONFIG: Record<EmployeeStatus, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
+  ACTIVE:     { label: 'Active',     variant: 'success'  },
+  ON_LEAVE:   { label: 'On Leave',   variant: 'warning'  },
+  RESIGNED:   { label: 'Resigned',   variant: 'danger'   },
+  TERMINATED: { label: 'Terminated', variant: 'danger'   },
+}
+
 interface Employee {
   id: string
   employeeId: string
@@ -27,6 +36,7 @@ interface Employee {
   phone: string | null
   email: string | null
   joinDate: string
+  status: EmployeeStatus
   isActive: boolean
 }
 
@@ -202,9 +212,10 @@ export default function EmployeesPage() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{emp.phone ?? '—'}</td>
                     <td className="px-4 py-3 text-xs text-gray-500">{dayjs(emp.joinDate).format('D MMM YYYY')}</td>
                     <td className="px-4 py-3">
-                      <Badge variant={emp.isActive ? 'success' : 'danger'}>
-                        {emp.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
+                      <div className="flex flex-col gap-1">
+                        {(() => { const s = STATUS_CONFIG[emp.status] ?? { label: emp.status, variant: 'default' as const }; return <Badge variant={s.variant}>{s.label}</Badge> })()}
+                        {!emp.isActive && <Badge variant="danger">Inactive</Badge>}
+                      </div>
                     </td>
                   </tr>
                 ))

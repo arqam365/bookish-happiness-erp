@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -119,81 +120,83 @@ function StaffFormDialog({
         description={employee ? `Editing ${employee.firstName} ${employee.lastName}` : 'Enter the new staff member details.'}
         className="max-w-2xl"
       >
-        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input
-              label="First name"
-              placeholder="Ali"
-              error={errors.firstName?.message}
-              {...register('firstName')}
-            />
-            <Input
-              label="Last name"
-              placeholder="Khan"
-              error={errors.lastName?.message}
-              {...register('lastName')}
-            />
-            <Input
-              label="Designation"
-              placeholder="Science Teacher"
-              error={errors.designation?.message}
-              {...register('designation')}
-            />
-            <Input
-              label="Department"
-              placeholder="Science"
-              {...register('department')}
-            />
-            <Input
-              label="Phone"
-              placeholder="+91 98765 43210"
-              {...register('phone')}
-            />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="ali@school.edu"
-              error={errors.email?.message}
-              {...register('email')}
-            />
-            <Input
-              label="Emergency contact"
-              placeholder="+91 98765 00000"
-              {...register('emergencyContact')}
-            />
-            <Input
-              label="Salary"
-              type="number"
-              min={0}
-              placeholder="30000"
-              {...register('salary')}
-            />
-            <Input
-              label="Teacher ID No."
-              placeholder="Govt. registration no."
-              {...register('teacherIdNo')}
-            />
-            <Input
-              label="Address"
-              placeholder="Street, city"
-              {...register('address')}
-            />
-            <Input
-              label="Join date"
-              type="date"
-              error={errors.joinDate?.message}
-              {...register('joinDate')}
-            />
+        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                label="First name"
+                placeholder="Ali"
+                error={errors.firstName?.message}
+                {...register('firstName')}
+              />
+              <Input
+                label="Last name"
+                placeholder="Khan"
+                error={errors.lastName?.message}
+                {...register('lastName')}
+              />
+              <Input
+                label="Designation"
+                placeholder="Science Teacher"
+                error={errors.designation?.message}
+                {...register('designation')}
+              />
+              <Input
+                label="Department"
+                placeholder="Science"
+                {...register('department')}
+              />
+              <Input
+                label="Phone"
+                placeholder="+91 98765 43210"
+                {...register('phone')}
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="ali@school.edu"
+                error={errors.email?.message}
+                {...register('email')}
+              />
+              <Input
+                label="Emergency contact"
+                placeholder="+91 98765 00000"
+                {...register('emergencyContact')}
+              />
+              <Input
+                label="Salary"
+                type="number"
+                min={0}
+                placeholder="30000"
+                {...register('salary')}
+              />
+              <Input
+                label="Teacher ID No."
+                placeholder="Govt. registration no."
+                {...register('teacherIdNo')}
+              />
+              <Input
+                label="Address"
+                placeholder="Street, city"
+                {...register('address')}
+              />
+              <Input
+                label="Join date"
+                type="date"
+                error={errors.joinDate?.message}
+                {...register('joinDate')}
+              />
+            </div>
+
+            {mutation.isError && (
+              <p className="text-xs text-red-500">
+                {(mutation.error as { response?: { data?: { message?: string } } })?.response?.data
+                  ?.message ?? 'Something went wrong'}
+              </p>
+            )}
           </div>
 
-          {mutation.isError && (
-            <p className="text-xs text-red-500">
-              {(mutation.error as { response?: { data?: { message?: string } } })?.response?.data
-                ?.message ?? 'Something went wrong'}
-            </p>
-          )}
-
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex-shrink-0 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-2 pt-3">
             <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -208,6 +211,7 @@ function StaffFormDialog({
 }
 
 export function StaffSettings() {
+  const router = useRouter()
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
   const [department, setDepartment] = useState('')
@@ -308,7 +312,7 @@ export function StaffSettings() {
             {staff.map((emp) => {
               const badge = STATUS_BADGE[emp.status] ?? { label: emp.status, variant: 'default' as const }
               return (
-                <div key={emp.id} className="flex items-center gap-4 py-3 px-1">
+                <div key={emp.id} className="flex items-center gap-4 py-3 px-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/60 rounded-lg transition-colors" onClick={() => router.push(`/employees/${emp.id}`)}>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
                     {initials(emp.firstName, emp.lastName)}
                   </div>
@@ -338,18 +342,20 @@ export function StaffSettings() {
                     </p>
                   </div>
 
-                  <StaffFormDialog
-                    trigger={
-                      <button
-                        type="button"
-                        className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                    }
-                    employee={emp}
-                    onSuccess={invalidate}
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <StaffFormDialog
+                      trigger={
+                        <button
+                          type="button"
+                          className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      }
+                      employee={emp}
+                      onSuccess={invalidate}
+                    />
+                  </div>
                 </div>
               )
             })}

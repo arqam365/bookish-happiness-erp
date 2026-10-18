@@ -283,7 +283,11 @@ function AssignmentsTab({ employee }: { employee: Employee }) {
             </div>
           )}
           {selectedClass && availableSections.length === 0 && (
-            <p className="pb-1 text-xs text-gray-400">All sections in this class already assigned.</p>
+            <p className="pb-1 text-xs text-gray-400">
+              {selectedClass.sections.length === 0
+                ? 'No sections in this class.'
+                : 'All sections already assigned.'}
+            </p>
           )}
           <div className="pb-0.5">
             <Button size="sm" disabled={!sectionId} loading={assign.isPending} onClick={() => assign.mutate(sectionId)}>
@@ -291,6 +295,11 @@ function AssignmentsTab({ employee }: { employee: Employee }) {
             </Button>
           </div>
         </div>
+        {assign.isError && (
+          <p className="mt-2 text-xs text-red-500">
+            {(assign.error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to assign section'}
+          </p>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
