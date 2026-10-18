@@ -10,7 +10,7 @@ import api from '@/lib/api'
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
-const REQUIRED = ['admissionNo', 'firstName', 'guardianFirstName', 'guardianRelationship', 'guardianPhone']
+const REQUIRED = ['admissionNo', 'firstName', 'guardianFirstName', 'guardianPhone']
 
 const ALL_COLS = [
   'admissionNo', 'firstName', 'lastName', 'dateOfBirth', 'gender',
