@@ -17,7 +17,7 @@ import api from '@/lib/api'
 
 const newGuardianSchema = z.object({
   firstName: z.string().min(1, 'Required'),
-  lastName: z.string().min(1, 'Required'),
+  lastName: z.string().optional(),
   relationship: z.string().min(1, 'Required'),
   phone: z.string().min(1, 'Required'),
   whatsappNumber: z.string().optional(),
@@ -329,7 +329,7 @@ export function AdmissionModal() {
             <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
               <div className="grid grid-cols-2 gap-3">
                 <Input label="First name *" placeholder="First name" error={guardianForm.formState.errors.firstName?.message} {...guardianForm.register('firstName')} />
-                <Input label="Last name *" placeholder="Last name" error={guardianForm.formState.errors.lastName?.message} {...guardianForm.register('lastName')} />
+                <Input label="Last name" placeholder="Last name" error={guardianForm.formState.errors.lastName?.message} {...guardianForm.register('lastName')} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Input label="Relationship *" placeholder="Father / Mother / Uncle…" error={guardianForm.formState.errors.relationship?.message} {...guardianForm.register('relationship')} />
