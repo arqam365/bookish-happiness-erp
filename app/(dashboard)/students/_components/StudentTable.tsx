@@ -73,18 +73,18 @@ function DeactivateCell({ student }: { student: Student }) {
       <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
         <button
           title="View profile"
-          className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-[#4F46E5] dark:hover:bg-gray-700 transition-colors"
+          className="rounded p-2 text-gray-400 hover:bg-gray-100 hover:text-[#4F46E5] dark:hover:bg-gray-700 transition-colors"
           onClick={(e) => { e.stopPropagation(); window.location.href = `/students/${student.id}` }}
         >
-          <Eye className="h-3.5 w-3.5" />
+          <Eye className="h-4 w-4" />
         </button>
         {student.isActive && (
           <button
             title="Deactivate"
-            className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 transition-colors"
+            className="rounded p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 transition-colors"
             onClick={(e) => { e.stopPropagation(); setOpen(true) }}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-4 w-4" />
           </button>
         )}
       </div>

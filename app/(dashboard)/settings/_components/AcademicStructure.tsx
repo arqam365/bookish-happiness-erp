@@ -349,16 +349,16 @@ function ClassesAndSections() {
                             <span className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
                               {s.name}{s.capacity ? ` (${s.capacity})` : ''}
                               <button
-                                className="text-indigo-400 hover:text-indigo-700"
+                                className="rounded p-0.5 text-indigo-400 hover:text-indigo-700"
                                 onClick={() => startEditSection(s)}
                               >
-                                <Pencil className="h-3 w-3" />
+                                <Pencil className="h-3.5 w-3.5" />
                               </button>
                               <button
-                                className="text-indigo-400 hover:text-red-600"
+                                className="rounded p-0.5 text-indigo-400 hover:text-red-600"
                                 onClick={() => deleteSection.mutate(s.id)}
                               >
-                                <Trash2 className="h-3 w-3" />
+                                <Trash2 className="h-3.5 w-3.5" />
                               </button>
                             </span>
                           )}

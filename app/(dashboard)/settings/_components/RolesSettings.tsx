@@ -222,15 +222,15 @@ export function RolesSettings() {
                         <>
                           <button
                             onClick={() => isEditing ? cancelEdit() : startEdit(role)}
-                            className="ml-1 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-indigo-600 dark:hover:bg-gray-800"
+                            className="ml-1 rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-indigo-600 dark:hover:bg-gray-800"
                           >
-                            {isEditing ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+                            {isEditing ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
                           </button>
                           <button
                             onClick={() => { if (confirm(`Delete role "${role.name}"?`)) deleteRole.mutate(role.id) }}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-rose-500 dark:hover:bg-gray-800"
+                            className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-rose-500 dark:hover:bg-gray-800"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </>
                       )}

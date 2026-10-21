@@ -364,11 +364,11 @@ function ExamSubjectRow({
         <Button
           size="sm"
           variant="ghost"
-          className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+          className="h-7 w-7 p-0 text-gray-400 hover:text-red-500"
           loading={removeSubject.isPending}
           onClick={() => removeSubject.mutate()}
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
 
@@ -383,11 +383,11 @@ function ExamSubjectRow({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-5 w-5 p-0 text-gray-400 hover:text-red-500"
+                className="h-7 w-7 p-0 text-gray-400 hover:text-red-500"
                 loading={removeComponent.isPending}
                 onClick={() => removeComponent.mutate(comp.id)}
               >
-                <Trash2 className="h-3 w-3" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           ))}
