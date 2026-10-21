@@ -18,6 +18,7 @@ import api from '@/lib/api'
 const newGuardianSchema = z.object({
   firstName: z.string().min(1, 'Required'),
   lastName: z.string().optional(),
+  motherName: z.string().optional(),
   relationship: z.string().min(1, 'Required'),
   phone: z.string().min(1, 'Required'),
   whatsappNumber: z.string().optional(),
@@ -47,6 +48,7 @@ const enrollmentSchema = z.object({
   classId: z.string().min(1, 'Required'),
   sectionId: z.string().optional(),
   rollNumber: z.string().optional(),
+  dateOfAdmission: z.string().optional(),
 })
 
 type NewGuardianData = z.infer<typeof newGuardianSchema>
@@ -331,6 +333,7 @@ export function AdmissionModal() {
                 <Input label="First name *" placeholder="First name" error={guardianForm.formState.errors.firstName?.message} {...guardianForm.register('firstName')} />
                 <Input label="Last name" placeholder="Last name" error={guardianForm.formState.errors.lastName?.message} {...guardianForm.register('lastName')} />
               </div>
+              <Input label="Mother name" placeholder="Mother's full name" {...guardianForm.register('motherName')} />
               <div className="grid grid-cols-2 gap-3">
                 <Input label="Relationship *" placeholder="Father / Mother / Uncle…" error={guardianForm.formState.errors.relationship?.message} {...guardianForm.register('relationship')} />
                 <Input label="Phone *" placeholder="+91 98765 43210" error={guardianForm.formState.errors.phone?.message} {...guardianForm.register('phone')} />
@@ -439,6 +442,7 @@ export function AdmissionModal() {
                   {selectedClass.sections.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </Select>
               )}
+              <Input label="Date of admission" type="date" {...enrollmentForm.register('dateOfAdmission')} />
               <div className="grid grid-cols-2 gap-3">
                 <Input label="Roll number" placeholder="Optional" {...enrollmentForm.register('rollNumber')} />
                 <div className="flex flex-col gap-1.5">
