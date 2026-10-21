@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef } from 'react'
 import * as XLSX from 'xlsx'
-import { Upload, Download, CheckCircle, XCircle, FileSpreadsheet, AlertTriangle, Layers } from 'lucide-react'
+import { Upload, Download, CheckCircle, XCircle, FileSpreadsheet, AlertTriangle, Layers, ChevronDown } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -401,14 +401,17 @@ export function BulkImportModal() {
                             {FIELD_LABELS[field]}{req && <span className="ml-1 text-red-500">*</span>}
                           </td>
                           <td className="px-3 py-2">
-                            <select
-                              value={src}
-                              onChange={e => setColMap(m => ({ ...m, [field]: e.target.value }))}
-                              className="w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                            >
-                              <option value="">— skip —</option>
-                              {fileHeaders.map(h => <option key={h} value={h}>{h}</option>)}
-                            </select>
+                            <div className="relative">
+                              <select
+                                value={src}
+                                onChange={e => setColMap(m => ({ ...m, [field]: e.target.value }))}
+                                className="w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 pr-6 text-xs dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                              >
+                                <option value="">— skip —</option>
+                                {fileHeaders.map(h => <option key={h} value={h}>{h}</option>)}
+                              </select>
+                              <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-gray-400" />
+                            </div>
                             {src && sampleValues[src] && (
                               <p className="mt-0.5 truncate text-[10px] text-gray-400" title={sampleValues[src]}>
                                 e.g. {sampleValues[src]}
