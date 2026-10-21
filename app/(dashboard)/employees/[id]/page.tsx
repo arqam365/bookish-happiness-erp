@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, UserCheck, Phone, Mail, Briefcase, Pencil, X, Check, ShieldCheck, BookOpen, Trash2, Plus } from 'lucide-react'
+import { ArrowLeft, UserCheck, Phone, Mail, MapPin, Briefcase, Pencil, X, Check, ShieldCheck, BookOpen, Trash2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -192,6 +192,9 @@ function RoleTab({ employee }: { employee: Employee }) {
             ))}
           </Select>
         )}
+        {save.isError && (
+          <p className="mt-2 text-xs text-rose-500">Failed to save role. Please try again.</p>
+        )}
       </div>
 
       {currentRole && perms.length > 0 && (
@@ -336,7 +339,7 @@ function AssignmentsTab({ employee }: { employee: Employee }) {
                   className="h-7 w-7 p-0 text-gray-400 hover:text-rose-500"
                   onClick={() => unassign.mutate(a.section.id)}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
@@ -495,7 +498,7 @@ export default function EmployeeProfilePage() {
                   </div>
                   {employee.address && (
                     <div className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                      <Mail className="h-4 w-4 shrink-0 mt-0.5 text-gray-400" />
+                      <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-gray-400" />
                       <div>
                         <p className="text-xs text-gray-400 mb-0.5">Address</p>
                         {employee.address}

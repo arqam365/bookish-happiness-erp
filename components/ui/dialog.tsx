@@ -45,7 +45,7 @@ export function DialogContent({ children, title, description, className }: Dialo
               </RadixDialog.Description>
             )}
           </div>
-          <RadixDialog.Close className="shrink-0 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800">
+          <RadixDialog.Close className="shrink-0 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800" aria-label="Close">
             <X className="h-4 w-4" />
           </RadixDialog.Close>
         </div>
