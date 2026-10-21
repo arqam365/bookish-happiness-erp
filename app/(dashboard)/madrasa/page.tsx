@@ -114,9 +114,9 @@ function HifzTab() {
                       {students.map((s) => (
                         <button key={s.id} type="button"
                           className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-                          onClick={() => { form.setValue('studentId', s.id); setStudentSearch(`${s.firstName} ${s.lastName}`) }}
+                          onClick={() => { form.setValue('studentId', s.id); setStudentSearch([s.firstName, s.lastName].filter(Boolean).join(' ')) }}
                         >
-                          <span className="font-medium dark:text-white">{s.firstName} {s.lastName}</span>
+                          <span className="font-medium dark:text-white">{[s.firstName, s.lastName].filter(Boolean).join(' ')}</span>
                           <span className="text-xs text-gray-400">{s.admissionNo}</span>
                         </button>
                       ))}
@@ -242,9 +242,9 @@ function SponsorshipsTab() {
                     {students.map((s) => (
                       <button key={s.id} type="button"
                         className="flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-                        onClick={() => { form.setValue('studentId', s.id); setStudentSearch(`${s.firstName} ${s.lastName}`) }}
+                        onClick={() => { form.setValue('studentId', s.id); setStudentSearch([s.firstName, s.lastName].filter(Boolean).join(' ')) }}
                       >
-                        <span className="font-medium dark:text-white">{s.firstName} {s.lastName}</span>
+                        <span className="font-medium dark:text-white">{[s.firstName, s.lastName].filter(Boolean).join(' ')}</span>
                         <span className="text-xs text-gray-400">{s.admissionNo}</span>
                       </button>
                     ))}

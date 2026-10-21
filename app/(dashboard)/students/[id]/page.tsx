@@ -550,7 +550,7 @@ export default function StudentProfilePage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             {student.photo ? (
-              <img src={student.photo} alt={`${student.firstName} ${student.lastName}`} className="h-14 w-14 rounded-full object-cover" />
+              <img src={student.photo} alt={[student.firstName, student.lastName].filter(Boolean).join(' ')} className="h-14 w-14 rounded-full object-cover" />
             ) : (
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
                 {student.firstName[0]}{student.lastName?.[0] ?? ''}
