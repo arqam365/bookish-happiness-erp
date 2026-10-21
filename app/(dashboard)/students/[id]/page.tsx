@@ -83,7 +83,7 @@ function apiError(err: unknown) {
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-start gap-0.5">
+    <div className="flex flex-col gap-0.5">
       <span className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</span>
       <span className="text-sm text-gray-900 dark:text-white">{value || '—'}</span>
     </div>

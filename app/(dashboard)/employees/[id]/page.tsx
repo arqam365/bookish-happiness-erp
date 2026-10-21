@@ -70,7 +70,7 @@ const STATUS_CONFIG: Record<EmployeeStatus, { label: string; variant: 'success' 
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-start gap-0.5">
+    <div className="flex flex-col gap-0.5">
       <span className="text-xs font-medium uppercase tracking-wide text-gray-400">{label}</span>
       <span className="text-sm text-gray-900 dark:text-white">{value ?? '—'}</span>
     </div>
@@ -471,7 +471,7 @@ export default function EmployeeProfilePage() {
                   <DetailRow label="Department" value={employee.department} />
                   <DetailRow label="Employee ID" value={<span className="font-mono text-xs">{employee.employeeId}</span>} />
                   <DetailRow label="Join date" value={dayjs(employee.joinDate).format('D MMM YYYY')} />
-                  <DetailRow label="Status" value={<Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>} />
+
                   {employee.teacherIdNo && (
                     <DetailRow label="Teacher ID No." value={<span className="font-mono text-xs">{employee.teacherIdNo}</span>} />
                   )}
