@@ -42,7 +42,7 @@ export function Select({ value, onValueChange, placeholder, label, error, disabl
             position="popper"
             sideOffset={4}
           >
-            <RadixSelect.Viewport className="p-1">
+            <RadixSelect.Viewport className="p-1 max-h-56 overflow-y-auto">
               {children}
             </RadixSelect.Viewport>
           </RadixSelect.Content>
