@@ -42,7 +42,7 @@ interface Course { id: string; name: string; code?: string; description?: string
 interface Batch { id: string; name: string; description?: string }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function IconBtn({ onClick, loading, className, children }: { onClick: () => void; loading?: boolean; className?: string; children: React.ReactNode }) {

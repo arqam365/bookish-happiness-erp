@@ -53,7 +53,7 @@ const GENDERS: Record<string, string> = { MALE: 'Male', FEMALE: 'Female', OTHER:
 
 function formatDob(d: string | null) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function DeactivateCell({ student }: { student: Student }) {

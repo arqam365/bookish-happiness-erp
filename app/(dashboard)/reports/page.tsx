@@ -111,7 +111,7 @@ function AttendanceReport() {
           ) : (
             <>
               <div className="border-b border-gray-100 px-5 py-3 dark:border-gray-700">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Absentees — {dayjs(date).format('D MMMM YYYY')}</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">Absentees — {dayjs(date).format('DD/MM/YYYY')}</p>
                 <p className="text-xs text-gray-400">{absentees.length} absent</p>
               </div>
               <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -175,7 +175,7 @@ function FeeDefaultersReport() {
                   {d.feeStructure && <p className="text-xs text-gray-400">{d.feeStructure.name}</p>}
                 </div>
                 <div className="flex items-center gap-3 text-right">
-                  {d.dueDate && <p className="text-xs text-gray-400">Due: {dayjs(d.dueDate).format('D MMM YYYY')}</p>}
+                  {d.dueDate && <p className="text-xs text-gray-400">Due: {dayjs(d.dueDate).format('DD/MM/YYYY')}</p>}
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">{fmt(d.totalAmount)}</p>
                   <Badge variant={d.status === 'OVERDUE' ? 'danger' : 'warning'}>{d.status}</Badge>
                 </div>

@@ -337,9 +337,9 @@ export function StaffSettings() {
                   <div className="hidden shrink-0 text-right sm:block">
                     <p className="text-xs font-mono text-gray-400">{emp.employeeId}</p>
                     <p className="text-xs text-gray-400">
-                      {new Date(emp.joinDate).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
+                      {new Date(emp.joinDate).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
                         year: 'numeric',
                       })}
                     </p>

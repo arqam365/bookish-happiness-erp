@@ -7,9 +7,9 @@ export function formatCurrency(amount: number, currency = 'INR') {
 }
 
 export function formatDate(date: string | Date) {
-  return new Intl.DateTimeFormat('en-IN', {
+  return new Intl.DateTimeFormat('en-GB', {
     day: '2-digit',
-    month: 'short',
+    month: '2-digit',
     year: 'numeric',
   }).format(new Date(date))
 }

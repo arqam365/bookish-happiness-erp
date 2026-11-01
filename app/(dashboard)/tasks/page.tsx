@@ -77,7 +77,7 @@ function TaskRow({ task, onComplete }: { task: Task; onComplete: (id: string) =>
           )}
           {task.dueDate && (
             <span className={cn(isOverdue && 'text-rose-500 font-medium')}>
-              Due {dayjs(task.dueDate).format('DD MMM YYYY')}
+              Due {dayjs(task.dueDate).format('DD/MM/YYYY')}
               {isOverdue && ' (Overdue)'}
             </span>
           )}

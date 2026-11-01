@@ -210,7 +210,7 @@ export default function EmployeesPage() {
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{emp.designation}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{emp.department ?? '—'}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{emp.phone ?? '—'}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(emp.joinDate).format('D MMM YYYY')}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(emp.joinDate).format('DD/MM/YYYY')}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1">
                         {(() => { const s = STATUS_CONFIG[emp.status] ?? { label: emp.status, variant: 'default' as const }; return <Badge variant={s.variant}>{s.label}</Badge> })()}

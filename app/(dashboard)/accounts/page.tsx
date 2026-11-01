@@ -224,7 +224,7 @@ function VoucherTab() {
                 vouchers.map((v) => (
                   <tr key={v.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
                     <td className="px-4 py-3 font-mono text-xs text-indigo-600 dark:text-indigo-400">{v.voucherNo}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(v.date).format('D MMM YY')}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(v.date).format('DD/MM/YYYY')}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${v.type === 'JOURNAL' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                         {v.type}
@@ -349,7 +349,7 @@ function LedgerTab() {
                 ) : (
                   data.map((e) => (
                     <tr key={e.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/60">
-                      <td className="px-4 py-3 text-xs text-gray-500">{dayjs(e.date).format('D MMM YY')}</td>
+                      <td className="px-4 py-3 text-xs text-gray-500">{dayjs(e.date).format('DD/MM/YYYY')}</td>
                       <td className="px-4 py-3 font-mono text-xs text-gray-500">{e.voucherNo}</td>
                       <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{e.description}</td>
                       <td className="px-4 py-3 text-right text-gray-900 dark:text-white">{e.debit ? fmt(e.debit) : '—'}</td>
@@ -672,7 +672,7 @@ function ReceiptsTab() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{r.feeType}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{r.paymentMode}</td>
                     <td className="px-4 py-3 text-right font-medium text-emerald-600">{fmt(r.amount)}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(r.date).format('D MMM YY')}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(r.date).format('DD/MM/YYYY')}</td>
                   </tr>
                 ))
               )}

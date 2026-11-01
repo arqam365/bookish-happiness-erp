@@ -156,7 +156,7 @@ export default function OrgDetailPage() {
               <div className="mt-2 flex flex-wrap gap-4 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <CalendarDays className="h-3.5 w-3.5" />
-                  Since {dayjs(org.createdAt).format('D MMM YYYY')}
+                  Since {dayjs(org.createdAt).format('DD/MM/YYYY')}
                 </span>
                 {org.email && (
                   <span className="flex items-center gap-1">
@@ -239,7 +239,7 @@ export default function OrgDetailPage() {
                     {TYPE_LABELS[inst.type] ?? inst.type}
                     {inst.code ? ` · ${inst.code}` : ''}
                     {' · Added '}
-                    {dayjs(inst.createdAt).format('D MMM YYYY')}
+                    {dayjs(inst.createdAt).format('DD/MM/YYYY')}
                   </p>
                 </div>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${inst.isActive ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-gray-100 text-gray-400 dark:bg-gray-800'}`}>

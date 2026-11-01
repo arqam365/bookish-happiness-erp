@@ -470,7 +470,7 @@ export default function EmployeeProfilePage() {
                   <DetailRow label="Designation" value={employee.designation} />
                   <DetailRow label="Department" value={employee.department} />
                   <DetailRow label="Employee ID" value={<span className="font-mono text-xs">{employee.employeeId}</span>} />
-                  <DetailRow label="Join date" value={dayjs(employee.joinDate).format('D MMM YYYY')} />
+                  <DetailRow label="Join date" value={dayjs(employee.joinDate).format('DD/MM/YYYY')} />
 
                   {employee.teacherIdNo && (
                     <DetailRow label="Teacher ID No." value={<span className="font-mono text-xs">{employee.teacherIdNo}</span>} />

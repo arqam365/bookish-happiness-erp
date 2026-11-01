@@ -168,7 +168,7 @@ function HifzTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant={STATUS_COLORS[h.status] ?? 'default'}>{h.status}</Badge>
-                  <p className="text-xs text-gray-400">{dayjs(h.evaluatedAt).format('D MMM YYYY')}</p>
+                  <p className="text-xs text-gray-400">{dayjs(h.evaluatedAt).format('DD/MM/YYYY')}</p>
                   <button
                     title="Delete"
                     onClick={() => { if (confirm('Delete this Hifz record?')) deleteHifz.mutate(h.id) }}
@@ -377,7 +377,7 @@ function DonationsTab() {
               <div key={d.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{d.donorName}</p>
-                  <p className="text-xs text-gray-400">{dayjs(d.date).format('D MMM YYYY')}{d.remarks ? ` · ${d.remarks}` : ''}</p>
+                  <p className="text-xs text-gray-400">{dayjs(d.date).format('DD/MM/YYYY')}{d.remarks ? ` · ${d.remarks}` : ''}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">{fmt(d.amount)}</p>

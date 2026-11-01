@@ -415,7 +415,7 @@ function SendHistoryTab() {
                       {log.status}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{dayjs(log.sentAt).format('D MMM YY, h:mm A')}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500">{dayjs(log.sentAt).format('DD/MM/YYYY, h:mm A')}</td>
                 </tr>
               ))
             )}

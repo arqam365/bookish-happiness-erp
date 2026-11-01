@@ -602,7 +602,7 @@ function ExamDetail({ exam }: { exam: Exam }) {
         <div>
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{exam.name}</h3>
           <p className="mt-0.5 text-xs text-gray-500">
-            {dayjs(exam.startDate).format('D MMM')} – {dayjs(exam.endDate).format('D MMM YYYY')} · {exam.academicYear.name}
+            {dayjs(exam.startDate).format('DD/MM')} – {dayjs(exam.endDate).format('DD/MM/YYYY')} · {exam.academicYear.name}
           </p>
           {(exam.totalMarks != null || exam.passingMarks != null) && (
             <p className="mt-1 text-xs text-gray-400">

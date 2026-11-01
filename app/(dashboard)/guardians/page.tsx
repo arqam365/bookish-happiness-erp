@@ -266,7 +266,7 @@ function GuardiansTable() {
                       ) : '—'}
                     </td>
                     <td className="px-4 py-3 max-w-[120px] truncate text-gray-500" title={g.remarks ?? ''}>{g.remarks ?? '—'}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{dayjs(g.createdAt).format('D MMM YYYY')}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{dayjs(g.createdAt).format('DD/MM/YYYY')}</td>
                   </tr>
                 ))
               )}
@@ -354,7 +354,7 @@ function SponsorsTable() {
                     <td className="px-4 py-3">
                       {s.sponsorshipType ? <Badge variant="default">{s.sponsorshipType}</Badge> : '—'}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{dayjs(s.createdAt).format('D MMM YYYY')}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{dayjs(s.createdAt).format('DD/MM/YYYY')}</td>
                   </tr>
                 ))
               )}

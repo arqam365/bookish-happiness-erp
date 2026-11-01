@@ -47,7 +47,7 @@ function ReceiptPrint({ receipt }: { receipt: FeeReceipt }) {
     <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
       <div className="space-y-1 text-sm">
         <p className="text-center font-bold text-gray-900 dark:text-white">Contribution Receipt</p>
-        <p className="text-center text-xs text-gray-500">{dayjs(receipt.paidAt).format('D MMM YYYY, h:mm A')}</p>
+        <p className="text-center text-xs text-gray-500">{dayjs(receipt.paidAt).format('DD/MM/YYYY, h:mm A')}</p>
         <hr className="my-2 border-gray-200 dark:border-gray-600" />
         <div className="flex justify-between"><span className="text-gray-500">Receipt No</span><span className="font-mono font-semibold text-gray-900 dark:text-white">{receipt.receiptNo}</span></div>
         <div className="flex justify-between"><span className="text-gray-500">Student</span><span className="text-gray-900 dark:text-white">{receipt.student.firstName} {receipt.student.lastName}</span></div>
@@ -269,7 +269,7 @@ function OverviewTab() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {d.dueDate && <p className="text-xs text-gray-400">Due: {dayjs(d.dueDate).format('D MMM YYYY')}</p>}
+                  {d.dueDate && <p className="text-xs text-gray-400">Due: {dayjs(d.dueDate).format('DD/MM/YYYY')}</p>}
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">{fmtCur(d.totalAmount)}</p>
                   <Badge variant={d.status === 'OVERDUE' ? 'danger' : 'warning'}>{d.status}</Badge>
                 </div>
@@ -349,7 +349,7 @@ function HistoryTab() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{r.feeType}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300 text-xs">{r.paymentMethod.replace('_', ' ')}</td>
                     <td className="px-4 py-3 text-right font-semibold text-emerald-600">{fmt(r.totalAmount)}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(r.paidAt).format('D MMM YY, h:mm A')}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">{dayjs(r.paidAt).format('DD/MM/YYYY, h:mm A')}</td>
                   </tr>
                 ))
               )}
