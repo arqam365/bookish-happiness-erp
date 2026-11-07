@@ -162,9 +162,18 @@ export function AdmissionModal() {
 
         return student
       } catch (err) {
-        // rollback: delete orphaned student and newly-created guardian so DB stays clean
-        if (studentId) await api.delete(`/students/${studentId}`).catch(() => {})
+        let rollbackFailed = false
+        if (studentId) {
+          try { await api.delete(`/students/${studentId}`) }
+          catch { rollbackFailed = true }
+        }
         if (guardianCreated) await api.delete(`/guardians/${guardianId}`).catch(() => {})
+        if (rollbackFailed) {
+          throw new Error(
+            `Enrollment failed and the student record could not be cleaned up automatically. ` +
+            `Please find and delete admission no "${studentData?.admissionNo}" from the students list, then retry.`
+          )
+        }
         throw err
       }
     },
