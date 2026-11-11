@@ -222,7 +222,7 @@ export default function AttendancePage() {
                             <p className="text-xs text-gray-400 truncate">{s.admissionNo}</p>
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-1.5 pl-11 sm:pl-0">
+                        <div className="flex flex-wrap shrink-0 gap-1.5 pl-11 sm:pl-0">
                           {(Object.keys(STATUS_CONFIG) as AttendanceStatus[]).map((st) => {
                             const cfg = STATUS_CONFIG[st]
                             const isActive = status === st
