@@ -212,8 +212,8 @@ export default function AttendancePage() {
                   {students.map((s, idx) => {
                     const status = markMap[s.id] ?? 'PRESENT'
                     return (
-                      <div key={s.id} className="flex items-center justify-between px-4 py-3 gap-4">
-                        <div className="flex flex-1 items-center gap-3 min-w-0">
+                      <div key={s.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                             {idx + 1}
                           </div>
@@ -222,7 +222,7 @@ export default function AttendancePage() {
                             <p className="text-xs text-gray-400 truncate">{s.admissionNo}</p>
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-1.5">
+                        <div className="flex shrink-0 gap-1.5 pl-11 sm:pl-0">
                           {(Object.keys(STATUS_CONFIG) as AttendanceStatus[]).map((st) => {
                             const cfg = STATUS_CONFIG[st]
                             const isActive = status === st
@@ -234,7 +234,7 @@ export default function AttendancePage() {
                                 title={cfg.label}
                               >
                                 {cfg.icon}
-                                <span className="hidden sm:inline">{cfg.label}</span>
+                                <span>{cfg.label}</span>
                               </button>
                             )
                           })}
