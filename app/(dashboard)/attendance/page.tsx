@@ -213,13 +213,13 @@ export default function AttendancePage() {
                     const status = markMap[s.id] ?? 'PRESENT'
                     return (
                       <div key={s.id} className="flex items-center justify-between px-4 py-3 gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex flex-1 items-center gap-3 min-w-0">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                             {idx + 1}
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{s.firstName} {s.lastName}</p>
-                            <p className="text-xs text-gray-400">{s.admissionNo}</p>
+                            <p className="text-xs text-gray-400 truncate">{s.admissionNo}</p>
                           </div>
                         </div>
                         <div className="flex shrink-0 gap-1.5">
